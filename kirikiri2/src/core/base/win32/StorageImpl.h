@@ -75,7 +75,7 @@ TJS_EXP_FUNC_DEF(bool, TVPCreateFolders, (const ttstr &folder));
 /*
 	this class provides VCL's TStream adapter for tTJSBinaryStream
 */
-class TTVPStreamAdapter : public TStream
+class TTVPStreamAdapter //: public TStream
 {
 private:
 	tTJSBinaryStream *Stream;
@@ -95,8 +95,9 @@ public:
 		// seek
 	int __fastcall Write(const void *Buffer,int Count);
 
-	__property Size;
-	__property Position;
+	// properties inherited from TStream
+	int64_t Size;
+	int64_t Position;
 };
 //---------------------------------------------------------------------------
 

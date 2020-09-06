@@ -6,3 +6,6 @@
 *.pdb
 Debug
 Release
+.DS_Store
+.vscode
+build

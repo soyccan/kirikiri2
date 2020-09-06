@@ -13,7 +13,7 @@
 #include "tjsRegExp.h"
 #include "tjsArray.h"
 
-#include <function.h>
+#include <functional>
 
 using namespace boost;
 
@@ -829,4 +829,3 @@ iTJSDispatch2 * TJSCreateRegExpClass()
 //---------------------------------------------------------------------------
 
 } // namespace TJS
-

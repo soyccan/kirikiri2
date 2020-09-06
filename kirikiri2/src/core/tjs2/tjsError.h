@@ -20,6 +20,7 @@
 #include "tjsVariant.h"
 #include "tjsString.h"
 #include "tjsMessage.h"
+#include "tjs.h"
 
 namespace TJS
 {
@@ -180,7 +181,7 @@ public:
 	eTJS(const eTJS&) {;}
 	eTJS& operator= (const eTJS& e) { return *this; }
 	virtual ~eTJS() {;}
-	virtual const ttstr & GetMessage() const 
+	virtual const ttstr & GetMessage() const
 	{ return TJSNonamedException; }
 };
 //---------------------------------------------------------------------------
@@ -395,7 +396,3 @@ TJS_MSG_DECL(TJSByteCodeBroken, TJS_W("Bytecode read error. File is broken or it
 
 
 #endif // #ifndef tjsErrorH
-
-
-
-

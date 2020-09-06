@@ -29,6 +29,22 @@
 
 #include <time.h>
 
+void *procFindNextFileW = NULL;
+void *procFindFirstFileW = NULL;
+void *procFindNextFileW = NULL;
+void *procGetTempPathW = NULL;
+void *procGetTempPathW = NULL;
+void *procDeleteFileW = NULL;
+void *procRemoveDirectoryW = NULL;
+void *procGetFileAttributesW = NULL;
+void *procGetFileAttributesW = NULL;
+void *procGetFileAttributesW = NULL;
+void *procGetFileAttributesW = NULL;
+void *procCreateDirectoryW = NULL;
+void *procCreateDirectoryW = NULL;
+void *procCreateFileW = NULL;
+void *procCreateFileW = NULL;
+
 
 //---------------------------------------------------------------------------
 // tTVPFileMedia
@@ -721,6 +737,12 @@ int __fastcall TTVPStreamAdapter::Read(void *Buffer, int Count)
 int __fastcall TTVPStreamAdapter::Seek(int Offset, WORD Origin)
 {
 	tjs_int whence;
+
+    // VCL Classes members
+    int soFromBegging = 0;
+    int soFromCurrent = 1;
+    int soFromEnd = 2;
+
 	switch(Origin)
 	{
 	case soFromBeginning:	whence = TJS_BS_SEEK_SET;		break;
@@ -1261,4 +1283,3 @@ TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
 
 }
 //---------------------------------------------------------------------------
-

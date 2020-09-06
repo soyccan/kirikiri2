@@ -414,7 +414,7 @@ public:
 
 			ZStream->next_in = NULL;
 			ZStream->avail_in = 0;
-			ZStream->next_out = CompressionBuffer;
+			ZStream->next_out = (Bytef*)CompressionBuffer;
 			ZStream->avail_out = COMPRESSION_BUFFER_SIZE;
 
 			// Compression Size (write dummy)
@@ -440,7 +440,7 @@ public:
 							TVPThrowExceptionMessage(TVPCompressionFailed);
 						}
 						Stream->WriteBuffer(CompressionBuffer, COMPRESSION_BUFFER_SIZE - ZStream->avail_out);
-						ZStream->next_out = CompressionBuffer;
+						ZStream->next_out = (Bytef*)CompressionBuffer;
 						ZStream->avail_out = COMPRESSION_BUFFER_SIZE;
 					} while (result != Z_STREAM_END);
 
@@ -586,7 +586,7 @@ public:
 				}
 				if (ZStream->avail_out == 0) {
 					Stream->WriteBuffer(CompressionBuffer, COMPRESSION_BUFFER_SIZE);
-					ZStream->next_out = CompressionBuffer;
+					ZStream->next_out = (Bytef*)CompressionBuffer;
 					ZStream->avail_out = COMPRESSION_BUFFER_SIZE;
 				}
 			}
@@ -612,8 +612,3 @@ iTJSTextWriteStream * TVPCreateTextStreamForWrite(const ttstr & name,
 	return new tTVPTextWriteStream(name, modestr);
 }
 //---------------------------------------------------------------------------
-
-
-
-
-

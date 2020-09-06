@@ -152,8 +152,8 @@ static void TJSUninitStringHeap(void)
 	if(!TJSStringHeapList) return;
 	if(!TJSStringHeapList->empty())
 	{
-		std::vector<tTJSVariantString*>::iterator c;
-		for(c = TJSStringHeapList->end()-1; c >= TJSStringHeapList->begin(); c--)
+		std::vector<tTJSVariantString*>::reverse_iterator c;
+		for(c = TJSStringHeapList->rbegin(); c != TJSStringHeapList->rend(); c++)
 		{
 			tTJSVariantString *h = *c;
 			for(tjs_int i = 0; i < HEAP_CAPACITY_INC; i++)
@@ -343,7 +343,7 @@ void TJSCompactStringHeap()
 				block_ind ++;
 				if(block_ind >= TJSStringHeapList->size()) block_ind = 0;
 				count++;
-				
+
 			} while(count < TJS_CHECK_FREE_BLOCK_MAX &&
 				block_ind != TJSStringHeapLastCheckedFreeBlock);
 
@@ -1009,4 +1009,3 @@ error:
 //---------------------------------------------------------------------------
 
 } // namespcae TJS
-

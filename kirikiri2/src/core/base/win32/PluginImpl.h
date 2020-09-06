@@ -48,20 +48,20 @@ extern "C"
 	iTVPFunctionExporter * __stdcall TVPGetFunctionExporter();
 
 	// V2 plug-in
-	typedef HRESULT _stdcall (*tTVPV2LinkProc)(iTVPFunctionExporter *);
-	typedef HRESULT _stdcall (*tTVPV2UnlinkProc)();
+	typedef HRESULT (__stdcall *tTVPV2LinkProc)(iTVPFunctionExporter *);
+	typedef HRESULT (__stdcall *tTVPV2UnlinkProc)();
 
 	// TSS
-	typedef HRESULT _stdcall (*tTVPGetModuleInstanceProc)(ITSSModule **out,
+	typedef HRESULT (__stdcall *tTVPGetModuleInstanceProc)(ITSSModule **out,
 		ITSSStorageProvider *provider, IStream * config, HWND mainwin);
-	typedef ULONG _stdcall (*tTVPGetModuleThreadModelProc)(void);
-	typedef HRESULT _stdcall (*tTVPShowConfigWindowProc)(HWND parentwin,
+	typedef ULONG (__stdcall *tTVPGetModuleThreadModelProc)(void);
+	typedef HRESULT (__stdcall *tTVPShowConfigWindowProc)(HWND parentwin,
 		IStream * storage );
-	typedef ULONG _stdcall (*tTVPCanUnloadNowProc)(void);
+	typedef ULONG (__stdcall *tTVPCanUnloadNowProc)(void);
 
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 	// WaveUnpacker
-	typedef HRESULT _stdcall (*tTVPCreateWaveUnpackerProc)(IStream *storage,long size,
+	typedef HRESULT (__stdcall *tTVPCreateWaveUnpackerProc)(IStream *storage,long size,
 		char *name,IWaveUnpacker **out); // old WaveUnpacker stuff
 #endif
 
@@ -103,7 +103,7 @@ TJS_EXP_FUNC_DEF(int, ZLIB_compress2, (unsigned char *dest, unsigned long *destl
 // MD5 (RFC 1321) by Aladdin Enterprises.
 //---------------------------------------------------------------------------
 // TVP_md5_init, TVP_md5_append, TVP_md5_finish are exported
-typedef struct TVP_md5_state_s { tjs_uint8 buffer[4*2+8+4*4+8+64]; } TVP_md5_state_t; // md5_state_t 
+typedef struct TVP_md5_state_s { tjs_uint8 buffer[4*2+8+4*4+8+64]; } TVP_md5_state_t; // md5_state_t
 //---------------------------------------------------------------------------
 
 

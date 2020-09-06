@@ -11,6 +11,7 @@
 #include "tjsCommHead.h"
 
 #include "tjsMath.h"
+#define _USE_MATH_DEFINES
 #include "math.h"
 #include "time.h"
 
@@ -19,6 +20,9 @@
 	#include "float.h"
 #endif
 #endif
+
+// C++ Builder specific
+#define _USERENTRY
 
 //---------------------------------------------------------------------------
 // matherr and matherrl function
@@ -489,6 +493,3 @@ TJS_END_NATIVE_STATIC_PROP_DECL(SQRT2)
 } // tTJSNC_Math::tTJSNC_Math()
 //---------------------------------------------------------------------------
 }  // namespace TJS
-
-
-

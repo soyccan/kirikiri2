@@ -879,7 +879,7 @@ void tTJSInterCodeContext::ExecuteAsFunction(iTJSDispatch2 *objthis,
 		catch(...)
 		{
 #ifdef ENABLE_DEBUGGER
-			// Œ³‚É–ß‚·
+			// ï¿½ï¿½ï¿½É–ß‚ï¿½
 			DebuggerScopeKey = oldkey;
 			DebuggerRegisterArea = oldra;
 #endif	// ENABLE_DEBUGGER
@@ -893,7 +893,7 @@ void tTJSInterCodeContext::ExecuteAsFunction(iTJSDispatch2 *objthis,
 		}
 
 #ifdef ENABLE_DEBUGGER
-		// Œ³‚É–ß‚·
+		// ï¿½ï¿½ï¿½É–ß‚ï¿½
 		DebuggerScopeKey = oldkey;
 		DebuggerRegisterArea = oldra;
 #endif	// ENABLE_DEBUGGER
@@ -2621,7 +2621,7 @@ void tTJSInterCodeContext::ProcessStringFunction(const tjs_char *member,
 			if(pstr) pstr->Release();
 			return;
 		}
-		tjs_char *p;
+		const tjs_char *p;
 		p = wcsstr(s + start, (const tjs_char*)*pstr);
 		if(!p)
 		{
@@ -2831,7 +2831,7 @@ void tTJSInterCodeContext::ProcessStringFunction(const tjs_char *member,
 			return;
 		}
 
-		const destLength = s_len * count;
+		const tjs_int destLength = s_len * count;
 		tTJSString new_str = tTJSString(tTJSStringBufferLength(destLength));
 		tjs_char * dest = new_str.Independ();
 		while(count--)

@@ -172,7 +172,8 @@ size_t TJS_strlen(const tjs_char *d)
 	return d-p;
 }
 //---------------------------------------------------------------------------
-#if  defined(__GNUC__)
+#if  defined(__GNUC__) || defined(__WIN32__)
+// TODO: buffer size limit about swprintf
 tjs_int TJS_sprintf(tjs_char *s, const tjs_char *format, ...)
 {
 	tjs_int r;
@@ -410,7 +411,7 @@ void TJSSetFPUE()
 		TJSFPUInit = true;
 		TJSDefaultFPUCW = _control87(0, 0);
 
-		_default87 = TJSNewFPUCW = _control87(MCW_EM, MCW_EM);
+		/*_default87 =*/ TJSNewFPUCW = _control87(MCW_EM, MCW_EM);
 #ifdef TJS_SUPPORT_VCL
 		Default8087CW = TJSNewFPUCW;
 #endif
@@ -434,6 +435,3 @@ void TJSRestoreFPUE()
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 } // namespace TJS
-
-
-
