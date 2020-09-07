@@ -1068,6 +1068,7 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir,
 			{
 				// regarding path length limit in Win32
 				ttstr name = ttstr(arc->GetName(i), MAX_PATH - TJS_strlen(destdir.Independ()) - 5);
+				printf("Extracting %ws...", name.c_str());
 
 				tTJSBinaryStream *src = arc->CreateStreamByIndex(i);
 				try
@@ -1081,12 +1082,6 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir,
 						{
 							read = src->Read(buffer, TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
 							if(read == 0) break;
-							// if (filter) {
-							// 	tTVPXP3ExtractionFilterInfo info(0, buffer, read, arc->GetFileHash(i));
-							// 	((int(*)(tTVPXP3ExtractionFilterInfo*))filter)(&info);
-							// 	__asm add esp, 4
-							// }
-							// __asm sub esp, 4
 							dest->WriteBuffer(buffer, read);
 						}
 					}
@@ -1095,7 +1090,6 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir,
 						delete [] buffer;
 						throw;
 					}
-					printf("Done %ws\n", name.c_str());
 					delete [] buffer;
 				}
 				catch(...)
@@ -1104,6 +1098,7 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir,
 //					throw;
 				}
 				delete src;
+				printf("Done\n");
 			}
 
 		}

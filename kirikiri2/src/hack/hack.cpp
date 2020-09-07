@@ -46,6 +46,23 @@ struct DecodeFunctions {
     int counter;
     int function_indices[100];
     struct _RTL_CRITICAL_SECTION critical_section;
+    
+    // Decompiled from 1E001000@cxdec.tpm
+    DecodeFunctions()
+    {
+        FunctionPool *v2;
+
+        InitializeCriticalSection(&this->critical_section);
+        v2 = (FunctionPool *) VirtualAlloc(0, 0x3200u, 0x1000u, 0x40u);
+        this->function_pool = v2;
+        if (!v2) {
+            while (1)
+                ;
+        }
+        memset(this->functions, 0, sizeof(this->functions));
+        memset(this->function_indices, 0xFFu, sizeof(this->function_indices));
+        this->counter = 0;
+    }
 };
 static_assert(sizeof(DecodeFunctions) == 0x3b0, "");  // note struct alignment
 // end types from reversing on cxdec.tpm
@@ -55,6 +72,8 @@ static_assert(sizeof(DecodeFunctions) == 0x3b0, "");  // note struct alignment
 // Global Variables
 //
 char gBuffer[0x10000];
+
+// Addresses in cxdec.tpm
 DecodeFunctions **pDecodeFunctions = (DecodeFunctions **) 0x1E019B8C;
 tDecodeL1 DecodeL1 = (tDecodeL1) (0x1e001e80);
 int* pDecodeState = (int*) 0x1E0175E8;
@@ -62,25 +81,8 @@ int* pDecodeState = (int*) 0x1E0175E8;
 
 // Functions
 //
-// Decompiled from 1E001000@cxdec.tpm
-DecodeFunctions *DecodeFunctions_init(DecodeFunctions *v1)
-{
-    FunctionPool *v2;
-
-    InitializeCriticalSection(&v1->critical_section);
-    v2 = (FunctionPool *) VirtualAlloc(0, 0x3200u, 0x1000u, 0x40u);
-    v1->function_pool = v2;
-    if (!v2) {
-        while (1)
-            ;
-    }
-    memset(v1->functions, 0, sizeof(v1->functions));
-    memset(v1->function_indices, 0xFFu, sizeof(v1->function_indices));
-    v1->counter = 0;
-    return v1;
-}
-
 void __stdcall Filter(tTVPXP3ExtractionFilterInfo* info) {
+    *pDecodeState = 127;
     DecodeL1(info);
 }
 
@@ -105,7 +107,11 @@ int main(int argc, char **argv)
         return -1;
     }
     
-    TVPExtractArchive(filename, destdir, true, NULL);
+    *pDecodeFunctions = new DecodeFunctions;
+    if (*pDecodeFunctions) {
+        TVPSetXP3ArchiveExtractionFilter(Filter);
+        TVPExtractArchive(filename, destdir, true, NULL);
+    }
 
     // TVPSetLogLocation("hack.log");
     // TVPStartLogToFile(true);
