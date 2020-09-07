@@ -1384,10 +1384,10 @@ static void __stdcall TVP_Stub_5a4fcbe1e398e3d9690d571acbbbae9f(tTVPTryBlockFunc
 {
 	return TVPDoTryBlock(tryblock, catchblock, finallyblock, data);
 }
-static bool __stdcall TVP_Stub_b8305ae2ae49a3f7f711105e77bafdf0(const char * module_filename , tjs_int & major , tjs_int & minor , tjs_int & release , tjs_int & build)
-{
-	return TVPGetFileVersionOf(module_filename, major, minor, release, build);
-}
+// static bool __stdcall TVP_Stub_b8305ae2ae49a3f7f711105e77bafdf0(const char * module_filename , tjs_int & major , tjs_int & minor , tjs_int & release , tjs_int & build)
+// {
+// 	return TVPGetFileVersionOf(module_filename, major, minor, release, build);
+// }
 #include "SysInitIntf.h"
 static bool __stdcall TVP_Stub_fb3b405f8747b54f26c332b9e6af81cd(const tjs_char * name , tTJSVariant * value = NULL)
 {

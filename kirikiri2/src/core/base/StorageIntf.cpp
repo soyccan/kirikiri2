@@ -282,7 +282,7 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
 	ttstr inarchive_name;
 	bool inarc_name_found = false;
 	pca = tmp.c_str();
-	pa = TJS_strchr(pca, TVPArchiveDelimiter);
+	pa = const_cast<tjs_char*>(TJS_strchr(pca, TVPArchiveDelimiter));
 	if(pa)
 	{
 		inarchive_name = ttstr(pa + 1);
@@ -575,15 +575,15 @@ void TVPSetCurrentDirectory(const ttstr & _name)
 
 
 
-//---------------------------------------------------------------------------
-// TVPGetLocalName and TVPGetLocallyAccessibleName
-//---------------------------------------------------------------------------
-void TVPGetLocalName(ttstr &name)
-{
-	ttstr tmp = TVPGetLocallyAccessibleName(name);
-	if(tmp.IsEmpty()) TVPThrowExceptionMessage(TVPCannotGetLocalName, name);
-	name = tmp;
-}
+// //---------------------------------------------------------------------------
+// // TVPGetLocalName and TVPGetLocallyAccessibleName
+// //---------------------------------------------------------------------------
+// void TVPGetLocalName(ttstr &name)
+// {
+// 	ttstr tmp = TVPGetLocallyAccessibleName(name);
+// 	if(tmp.IsEmpty()) TVPThrowExceptionMessage(TVPCannotGetLocalName, name);
+// 	name = tmp;
+// }
 //---------------------------------------------------------------------------
 ttstr TVPGetLocallyAccessibleName(const ttstr &name)
 {
@@ -785,9 +785,9 @@ private:
 
 } TVPArchiveCache;
 static void TVPClearArchiveCache() { TVPArchiveCache.Clear(); }
-static tTVPAtExit TVPClearArchiveCacheAtExit
-	(TVP_ATEXIT_PRI_SHUTDOWN, TVPClearArchiveCache);
-//---------------------------------------------------------------------------
+// static tTVPAtExit TVPClearArchiveCacheAtExit
+// 	(TVP_ATEXIT_PRI_SHUTDOWN, TVPClearArchiveCache);
+// ---------------------------------------------------------------------------
 
 
 
@@ -1157,11 +1157,11 @@ ttstr TVPGetPlacedPath(const ttstr & name)
 	// search path and return the path which the "name" is placed.
 	// returned name is normalized. returns empty string if the storage is not
 	// found.
-	if(!TVPClearAutoPathCacheCallbackInit)
-	{
-		TVPAddCompactEventHook(&TVPClearAutoPathCacheCallback);
-		TVPClearAutoPathCacheCallbackInit = true;
-	}
+	// if(!TVPClearAutoPathCacheCallbackInit)
+	// {
+	// 	TVPAddCompactEventHook(&TVPClearAutoPathCacheCallback);
+	// 	TVPClearAutoPathCacheCallbackInit = true;
+	// }
 
 	ttstr * incache = TVPAutoPathCache.FindAndTouch(name);
 	if(incache) return *incache; // found in cache
@@ -1481,12 +1481,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/chopStorageExt)
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/chopStorageExt)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/clearArchiveCache)
-{
-	TVPClearArchiveCache();
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/clearArchiveCache)
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/clearArchiveCache)
+// {
+// 	TVPClearArchiveCache();
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/clearArchiveCache)
 //----------------------------------------------------------------------
 	TJS_END_NATIVE_MEMBERS
 }

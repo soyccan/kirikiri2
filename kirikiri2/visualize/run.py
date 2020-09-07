@@ -87,12 +87,15 @@ try:
 
     def dfs(u, root):
         for v in G[u]:
+            print(u, v, hash_table.revmap[u], hash_table.revmap[v])
             if not vis[v]:
                 vis[v] = True
                 ref[v].append(root)
                 dfs(v, root)
 
     for i in cpp:
+        if hash_table.revmap[i] != 'XP3Archive.cpp':
+            continue
         vis.fill(False)
         dfs(i, i)
 

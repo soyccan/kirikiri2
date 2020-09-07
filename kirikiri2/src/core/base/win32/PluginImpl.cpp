@@ -12,13 +12,14 @@
 
 #include <algorithm>
 #include <functional>
-#include "ScriptMgnIntf.h"
+#include <string>
+// #include "ScriptMgnIntf.h"
 #include "PluginImpl.h"
 #include "StorageImpl.h"
 #include "GraphicsLoaderImpl.cpp"
 #include "tjsHashSearch.h"
-#include "EventIntf.h"
-#include "TransIntf.h"
+// #include "EventIntf.h"
+// #include "TransIntf.h"
 #include "tjsArray.h"
 #include "tjsDictionary.h"
 #include "DebugIntf.h"
@@ -39,6 +40,7 @@
 #endif
 
 
+#define _export
 
 
 //---------------------------------------------------------------------------
@@ -271,7 +273,7 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 
 	// load DLL
 	Holder = new tTVPPluginHolder(name);
-	Instance = LoadLibrary(Holder->GetLocalName().AsAnsiString().c_str());
+	Instance = LoadLibrary(Holder->GetLocalName().AsStdString().c_str());
 	if(!Instance)
 	{
 		delete Holder;
@@ -325,28 +327,28 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 			return;
 		}
 
-		if(GetModuleInstance)
-		{
-			HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
-				 NULL, Application->Handle);
-			if(FAILED(hr) || TSSModule == NULL)
-				TVPThrowExceptionMessage(TVPCannotLoadPlugin, name);
+		// if(GetModuleInstance)
+		// {
+		// 	HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
+		// 		 NULL, Application->Handle);
+		// 	if(FAILED(hr) || TSSModule == NULL)
+		// 		TVPThrowExceptionMessage(TVPCannotLoadPlugin, name);
 
-			// get supported extensions
-			unsigned long index = 0;
-			while(true)
-			{
-				wchar_t mediashortname[33];
-				wchar_t buf[256];
-				HRESULT hr = TSSModule->GetSupportExts(index,
-					mediashortname, buf, 255);
-				if(hr == S_OK)
-					SupportedExts.push_back(ttstr(buf).AsLowerCase());
-				else
-					break;
-				index ++;
-			}
-		}
+		// 	// get supported extensions
+		// 	unsigned long index = 0;
+		// 	while(true)
+		// 	{
+		// 		wchar_t mediashortname[33];
+		// 		wchar_t buf[256];
+		// 		HRESULT hr = TSSModule->GetSupportExts(index,
+		// 			mediashortname, buf, 255);
+		// 		if(hr == S_OK)
+		// 			SupportedExts.push_back(ttstr(buf).AsLowerCase());
+		// 		else
+		// 			break;
+		// 		index ++;
+		// 	}
+		// }
 
 
 #ifdef TVP_SUPPORT_KPI
@@ -377,25 +379,25 @@ tTVPPlugin::~tTVPPlugin()
 {
 }
 //---------------------------------------------------------------------------
-bool tTVPPlugin::Uninit()
-{
-	tTJS *tjs = TVPGetScriptEngine();
-	if(tjs) tjs->DoGarbageCollection(); // to release unused objects
+// bool tTVPPlugin::Uninit()
+// {
+// 	tTJS *tjs = TVPGetScriptEngine();
+// 	if(tjs) tjs->DoGarbageCollection(); // to release unused objects
 
-	if(V2Unlink)
-	{
- 		if(FAILED(V2Unlink())) return false;
-	}
-#ifdef TVP_SUPPORT_KPI
-	if(KMPModule) if(KMPModule->Deinit) KMPModule->Deinit();
-#endif
-	if(TSSModule) TSSModule->Release();
-	if(IsSusiePicturePlugin) TVPUnloadPictureSPI(Instance);
-	if(IsSusieArchivePlugin) TVPUnloadArchiveSPI(Instance);
-	FreeLibrary(Instance);
-	delete Holder;
-	return true;
-}
+// 	if(V2Unlink)
+// 	{
+//  		if(FAILED(V2Unlink())) return false;
+// 	}
+// #ifdef TVP_SUPPORT_KPI
+// 	if(KMPModule) if(KMPModule->Deinit) KMPModule->Deinit();
+// #endif
+// 	if(TSSModule) TSSModule->Release();
+// 	if(IsSusiePicturePlugin) TVPUnloadPictureSPI(Instance);
+// 	if(IsSusieArchivePlugin) TVPUnloadArchiveSPI(Instance);
+// 	FreeLibrary(Instance);
+// 	delete Holder;
+// 	return true;
+// }
 //---------------------------------------------------------------------------
 
 
@@ -408,29 +410,29 @@ struct tTVPPluginVectorStruc
 	tTVPPluginVectorType Vector;
 	tTVPStorageProvider StorageProvider;
 } static TVPPluginVector;
-static void TVPDestroyPluginVector(void)
-{
-	// state all plugins are to be released
-	TVPPluginUnloadedAtSystemExit = true;
+// static void TVPDestroyPluginVector(void)
+// {
+// 	// state all plugins are to be released
+// 	TVPPluginUnloadedAtSystemExit = true;
 
-	// delete all objects
-	tTVPPluginVectorType::iterator i;
-	while(TVPPluginVector.Vector.size())
-	{
-		i = TVPPluginVector.Vector.end() - 1;
-		try
-		{
-			(*i)->Uninit();
-			delete *i;
-		}
-		catch(...)
-		{
-		}
-		TVPPluginVector.Vector.pop_back();
-	}
-}
-tTVPAtExit TVPDestroyPluginVectorAtExit
-	(TVP_ATEXIT_PRI_RELEASE, TVPDestroyPluginVector);
+// 	// delete all objects
+// 	tTVPPluginVectorType::iterator i;
+// 	while(TVPPluginVector.Vector.size())
+// 	{
+// 		i = TVPPluginVector.Vector.end() - 1;
+// 		try
+// 		{
+// 			(*i)->Uninit();
+// 			delete *i;
+// 		}
+// 		catch(...)
+// 		{
+// 		}
+// 		TVPPluginVector.Vector.pop_back();
+// 	}
+// }
+// tTVPAtExit TVPDestroyPluginVectorAtExit
+// 	(TVP_ATEXIT_PRI_RELEASE, TVPDestroyPluginVector);
 //---------------------------------------------------------------------------
 static bool TVPPluginLoading = false;
 void TVPLoadPlugin(const ttstr & name)
@@ -496,12 +498,12 @@ bool TVPUnloadPlugin(const ttstr & name)
 //---------------------------------------------------------------------------
 struct tTVPFoundPlugin
 {
-	AnsiString Path;
-	AnsiString Name;
+	std::string Path;
+	std::string Name;
 	bool operator < (const tTVPFoundPlugin &rhs) const { return Name < rhs.Name; }
 };
 static tjs_int TVPAutoLoadPluginCount = 0;
-static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, AnsiString folder)
+static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, std::string folder)
 {
 	WIN32_FIND_DATA ffd;
 	HANDLE handle = FindFirstFile((folder + "*.tpm").c_str(), &ffd);
@@ -523,7 +525,7 @@ static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, AnsiString fo
 	}
 }
 
-void TVPLoadPluigins(void)
+void TVPLoadPlugins(void)
 {
 	// This function searches plugins which have an extension of ".tpm"
 	// in the default path: 
@@ -535,8 +537,9 @@ void TVPLoadPluigins(void)
 	// search plugins from path: (exepath), (exepath)\system, (exepath)\plugin
 	std::vector<tTVPFoundPlugin> list;
 
-	AnsiString exepath =
-		IncludeTrailingBackslash(ExtractFileDir(ParamStr(0)));
+	char path[MAX_PATH];
+	GetModuleFileNameA(NULL, path, sizeof(path));
+	std::string exepath(path);
 
 	TVPSearchPluginsAt(list, exepath);
 	TVPSearchPluginsAt(list, exepath + "system\\");
@@ -630,7 +633,7 @@ IWaveUnpacker * TVPSearchAvailWaveUnpacker(const ttstr & storage, IStream **stre
 	if(i == TVPPluginVector.Vector.end()) return NULL; // KPI not found
 
 	// retrieve IStream interface
-	AnsiString ansiname = storage.AsAnsiString();
+	std::string ansiname = storage.AsStdString();
 
 	tTJSBinaryStream *stream0 = NULL;
 	long size;
@@ -690,7 +693,7 @@ void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
 	}
 	if(i == TVPPluginVector.Vector.end()) return NULL; // KPI not found
 
-	AnsiString localname;
+	std::string localname;
 
 	if(TJS_strchr(storage.c_str(), TVPArchiveDelimiter)) return NULL;
 		// in-archive storage is not supported
@@ -699,14 +702,14 @@ void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
 	{
 		ttstr ln(TVPSearchPlacedPath(storage));
 		TVPGetLocalName(ln);
-		localname  = ln.AsAnsiString();
+		localname  = ln.AsStdString();
 	}
 	catch(...)
 	{
 		return NULL;
 	}
 
-	AnsiString ext = TVPExtractStorageExt(storage).AsAnsiString();
+	std::string ext = TVPExtractStorageExt(storage).AsStdString();
 
 	for(i = TVPPluginVector.Vector.begin();
 		i != TVPPluginVector.Vector.end(); i++)
@@ -782,59 +785,59 @@ void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest)
 {
 	md5_finish((md5_state_t*)pms, digest);
 }
+// //---------------------------------------------------------------------------
+// HWND TVPGetApplicationWindowHandle()
+// {
+// 	return Application->Handle;
+// }
+// //---------------------------------------------------------------------------
+// void TVPProcessApplicationMessages()
+// {
+// 	Application->ProcessMessages();
+// }
+// //---------------------------------------------------------------------------
+// void TVPHandleApplicationMessage()
+// {
+// 	Application->HandleMessage();
+// }
 //---------------------------------------------------------------------------
-HWND TVPGetApplicationWindowHandle()
-{
-	return Application->Handle;
-}
-//---------------------------------------------------------------------------
-void TVPProcessApplicationMessages()
-{
-	Application->ProcessMessages();
-}
-//---------------------------------------------------------------------------
-void TVPHandleApplicationMessage()
-{
-	Application->HandleMessage();
-}
-//---------------------------------------------------------------------------
-bool TVPRegisterGlobalObject(const tjs_char *name, iTJSDispatch2 * dsp)
-{
-	// register given object to global object
-	tTJSVariant val(dsp);
-	iTJSDispatch2 *global = TVPGetScriptDispatch();
-	tjs_error er;
-	try
-	{
-		er = global->PropSet(TJS_MEMBERENSURE, name, NULL, &val, global);
-	}
-	catch(...)
-	{
-		global->Release();
-		return false;
-	}
-	global->Release();
-	return TJS_SUCCEEDED(er);
-}
-//---------------------------------------------------------------------------
-bool TVPRemoveGlobalObject(const tjs_char *name)
-{
-	// remove registration of global object
-	iTJSDispatch2 *global = TVPGetScriptDispatch();
-	if(!global) return false;
-	tjs_error er;
-	try
-	{
-		er = global->DeleteMember(0, name, NULL, global);
-	}
-	catch(...)
-	{
-		global->Release();
-		return false;
-	}
-	global->Release();
-	return TJS_SUCCEEDED(er);
-}
+// bool TVPRegisterGlobalObject(const tjs_char *name, iTJSDispatch2 * dsp)
+// {
+// 	// register given object to global object
+// 	tTJSVariant val(dsp);
+// 	iTJSDispatch2 *global = TVPGetScriptDispatch();
+// 	tjs_error er;
+// 	try
+// 	{
+// 		er = global->PropSet(TJS_MEMBERENSURE, name, NULL, &val, global);
+// 	}
+// 	catch(...)
+// 	{
+// 		global->Release();
+// 		return false;
+// 	}
+// 	global->Release();
+// 	return TJS_SUCCEEDED(er);
+// }
+// //---------------------------------------------------------------------------
+// bool TVPRemoveGlobalObject(const tjs_char *name)
+// {
+// 	// remove registration of global object
+// 	iTJSDispatch2 *global = TVPGetScriptDispatch();
+// 	if(!global) return false;
+// 	tjs_error er;
+// 	try
+// 	{
+// 		er = global->DeleteMember(0, name, NULL, global);
+// 	}
+// 	catch(...)
+// 	{
+// 		global->Release();
+// 		return false;
+// 	}
+// 	global->Release();
+// 	return TJS_SUCCEEDED(er);
+// }
 //---------------------------------------------------------------------------
 void TVPDoTryBlock(
 	tTVPTryBlockFunction tryblock,
@@ -869,65 +872,65 @@ void TVPDoTryBlock(
 
 
 
-//---------------------------------------------------------------------------
-// TVPGetFileVersionOf
-//---------------------------------------------------------------------------
-bool TVPGetFileVersionOf(const char * module_filename, tjs_int &major, tjs_int &minor,
-	tjs_int &release, tjs_int &build)
-{
-	// retrieve file version
-	major = minor = release = build = 0;
+// //---------------------------------------------------------------------------
+// // TVPGetFileVersionOf
+// //---------------------------------------------------------------------------
+// bool TVPGetFileVersionOf(const char * module_filename, tjs_int &major, tjs_int &minor,
+// 	tjs_int &release, tjs_int &build)
+// {
+// 	// retrieve file version
+// 	major = minor = release = build = 0;
 
-	VS_FIXEDFILEINFO *FixedFileInfo;
-	BYTE *VersionInfo;
-	bool got = false;
+// 	VS_FIXEDFILEINFO *FixedFileInfo;
+// 	BYTE *VersionInfo;
+// 	bool got = false;
 
-	UINT dum;
-	DWORD dum2;
+// 	UINT dum;
+// 	DWORD dum2;
 
-	char * filename = new char [strlen(module_filename) + 1];
-	try
-	{
-		strcpy(filename, module_filename);
+// 	char * filename = new char [strlen(module_filename) + 1];
+// 	try
+// 	{
+// 		strcpy(filename, module_filename);
 
-		DWORD size = GetFileVersionInfoSize (filename, &dum2);
-		if(size)
-		{
-			VersionInfo = new BYTE[size + 2];
-			try
-			{
-				if(GetFileVersionInfo(filename, 0, size, (void*)VersionInfo))
-				{
-					if(VerQueryValue((void*)VersionInfo, "\\", (void**)(&FixedFileInfo),
-						&dum))
-					{
-						major   = FixedFileInfo->dwFileVersionMS >> 16;
-						minor   = FixedFileInfo->dwFileVersionMS & 0xffff;
-						release = FixedFileInfo->dwFileVersionLS >> 16;
-						build   = FixedFileInfo->dwFileVersionLS & 0xffff;
-						got = true;
-					}
-				}
-			}
-			catch(...)
-			{
-				delete [] VersionInfo;
-				throw;
-			}
-			delete [] VersionInfo;
-		}
-	}
-	catch(...)
-	{
-		delete [] filename;
-		throw;
-	}
+// 		DWORD size = GetFileVersionInfoSize (filename, &dum2);
+// 		if(size)
+// 		{
+// 			VersionInfo = new BYTE[size + 2];
+// 			try
+// 			{
+// 				if(GetFileVersionInfo(filename, 0, size, (void*)VersionInfo))
+// 				{
+// 					if(VerQueryValue((void*)VersionInfo, "\\", (void**)(&FixedFileInfo),
+// 						&dum))
+// 					{
+// 						major   = FixedFileInfo->dwFileVersionMS >> 16;
+// 						minor   = FixedFileInfo->dwFileVersionMS & 0xffff;
+// 						release = FixedFileInfo->dwFileVersionLS >> 16;
+// 						build   = FixedFileInfo->dwFileVersionLS & 0xffff;
+// 						got = true;
+// 					}
+// 				}
+// 			}
+// 			catch(...)
+// 			{
+// 				delete [] VersionInfo;
+// 				throw;
+// 			}
+// 			delete [] VersionInfo;
+// 		}
+// 	}
+// 	catch(...)
+// 	{
+// 		delete [] filename;
+// 		throw;
+// 	}
 
-	delete [] filename;
+// 	delete [] filename;
 
-	return got;
-}
-//---------------------------------------------------------------------------
+// 	return got;
+// }
+// //---------------------------------------------------------------------------
 
 
 

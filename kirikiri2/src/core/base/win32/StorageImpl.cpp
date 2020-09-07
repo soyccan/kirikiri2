@@ -16,34 +16,18 @@
 #include "MsgIntf.h"
 
 #include "StorageImpl.h"
-#include "WideNativeFuncs.h"
-#include "WindowImpl.h"
-#include "GraphicsLoaderImpl.h"
-#include "SysInitIntf.h"
-#include "DebugIntf.h"
-#include "Random.h"
+// #include "WideNativeFuncs.h"
+// #include "WindowImpl.h"
+// #include "GraphicsLoaderImpl.h"
+// #include "SysInitIntf.h"
+// #include "DebugIntf.h"
 #include "XP3Archive.h"
 #include "SusieArchive.h"
-#include "FileSelector.h"
+// #include "FileSelector.h"
 #include "Random.h"
 
 #include <time.h>
 
-void *procFindNextFileW = NULL;
-void *procFindFirstFileW = NULL;
-void *procFindNextFileW = NULL;
-void *procGetTempPathW = NULL;
-void *procGetTempPathW = NULL;
-void *procDeleteFileW = NULL;
-void *procRemoveDirectoryW = NULL;
-void *procGetFileAttributesW = NULL;
-void *procGetFileAttributesW = NULL;
-void *procGetFileAttributesW = NULL;
-void *procGetFileAttributesW = NULL;
-void *procCreateDirectoryW = NULL;
-void *procCreateDirectoryW = NULL;
-void *procCreateFileW = NULL;
-void *procCreateFileW = NULL;
 
 
 //---------------------------------------------------------------------------
@@ -135,40 +119,40 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 	GetLocalName(name);
 	name += TJS_W("*.*");
 
-	if(procFindFirstFileW && procFindNextFileW)
-	{
-		// perform UNICODE operation
-		WIN32_FIND_DATAW ffd;
-		HANDLE handle = procFindFirstFileW(name.c_str(), &ffd);
-		if(handle != INVALID_HANDLE_VALUE)
-		{
-			BOOL cont;
-			do
-			{
-				if(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					ttstr file(ffd.cFileName);
-					tjs_char *p = file.Independ();
-					while(*p)
-					{
-						// make all characters small
-						if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
-							*p += TJS_W('a') - TJS_W('A');
-						p++;
-					}
-					lister->Add(file);
-				}
+	// if(procFindFirstFileW && procFindNextFileW)
+	// {
+	// 	// perform UNICODE operation
+	// 	WIN32_FIND_DATAW ffd;
+	// 	HANDLE handle = procFindFirstFileW(name.c_str(), &ffd);
+	// 	if(handle != INVALID_HANDLE_VALUE)
+	// 	{
+	// 		BOOL cont;
+	// 		do
+	// 		{
+	// 			if(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+	// 			{
+	// 				ttstr file(ffd.cFileName);
+	// 				tjs_char *p = file.Independ();
+	// 				while(*p)
+	// 				{
+	// 					// make all characters small
+	// 					if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
+	// 						*p += TJS_W('a') - TJS_W('A');
+	// 					p++;
+	// 				}
+	// 				lister->Add(file);
+	// 			}
 
-				cont = procFindNextFileW(handle, &ffd);
-			} while(cont);
-			FindClose(handle);
-		}
-	}
-	else
+	// 			cont = procFindNextFileW(handle, &ffd);
+	// 		} while(cont);
+	// 		FindClose(handle);
+	// 	}
+	// }
+	// else
 	{
 		// perform ANSI operation
 		WIN32_FIND_DATA ffd;
-		HANDLE handle = FindFirstFile(name.AsAnsiString().c_str(), &ffd);
+		HANDLE handle = FindFirstFile(name.AsStdString().c_str(), &ffd);
 		if(handle != INVALID_HANDLE_VALUE)
 		{
 			BOOL cont;
@@ -305,130 +289,130 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 
 
-//---------------------------------------------------------------------------
-// TVPGetTemporaryName
-//---------------------------------------------------------------------------
-static tjs_int TVPTempUniqueNum = 0;
-static tTJSCriticalSection TVPTempUniqueNumCS;
-static ttstr TVPTempPath;
-bool TVPTempPathInit = false;
-static tjs_int TVPProcessID;
-ttstr TVPGetTemporaryName()
-{
-	tjs_int num;
+// //---------------------------------------------------------------------------
+// // TVPGetTemporaryName
+// //---------------------------------------------------------------------------
+// static tjs_int TVPTempUniqueNum = 0;
+// static tTJSCriticalSection TVPTempUniqueNumCS;
+// static ttstr TVPTempPath;
+// bool TVPTempPathInit = false;
+// static tjs_int TVPProcessID;
+// ttstr TVPGetTemporaryName()
+// {
+// 	tjs_int num;
 
-	{
-		tTJSCriticalSectionHolder holder(TVPTempUniqueNumCS);
+// 	{
+// 		tTJSCriticalSectionHolder holder(TVPTempUniqueNumCS);
 
-		if(!TVPTempPathInit)
-		{
-			if(procGetTempPathW)
-			{
-				tjs_char tmp[MAX_PATH+1];
-				procGetTempPathW(MAX_PATH, tmp);
-				TVPTempPath = tmp;
-			}
-			else
-			{
-				char tmp[MAX_PATH+1];
-				GetTempPath(MAX_PATH, tmp);
-				TVPTempPath = ttstr(tmp);
-			}
-			if(TVPTempPath.GetLastChar() != TJS_W('\\')) TVPTempPath += TJS_W("\\");
-			TVPProcessID = (tjs_int) GetCurrentProcessId();
-			TVPTempUniqueNum = (tjs_int) GetTickCount();
-			TVPTempPathInit = true;
-		}
-		num = TVPTempUniqueNum ++;
-	}
+// 		if(!TVPTempPathInit)
+// 		{
+// 			if(procGetTempPathW)
+// 			{
+// 				tjs_char tmp[MAX_PATH+1];
+// 				procGetTempPathW(MAX_PATH, tmp);
+// 				TVPTempPath = tmp;
+// 			}
+// 			else
+// 			{
+// 				char tmp[MAX_PATH+1];
+// 				GetTempPath(MAX_PATH, tmp);
+// 				TVPTempPath = ttstr(tmp);
+// 			}
+// 			if(TVPTempPath.GetLastChar() != TJS_W('\\')) TVPTempPath += TJS_W("\\");
+// 			TVPProcessID = (tjs_int) GetCurrentProcessId();
+// 			TVPTempUniqueNum = (tjs_int) GetTickCount();
+// 			TVPTempPathInit = true;
+// 		}
+// 		num = TVPTempUniqueNum ++;
+// 	}
 
-	unsigned char buf[16];
-	TVPGetRandomBits128(buf);
-	tjs_char random[128];
-	TJS_sprintf(random, TJS_W("%02x%02x%02x%02x%02x%02x"),
-		buf[0], buf[1], buf[2], buf[3],
-		buf[4], buf[5]);
+// 	unsigned char buf[16];
+// 	TVPGetRandomBits128(buf);
+// 	tjs_char random[128];
+// 	TJS_sprintf(random, TJS_W("%02x%02x%02x%02x%02x%02x"),
+// 		buf[0], buf[1], buf[2], buf[3],
+// 		buf[4], buf[5]);
 
-	return TVPTempPath + TJS_W("krkr_") + ttstr(random) +
-		TJS_W("_") + ttstr(num) + TJS_W("_") + ttstr(TVPProcessID);
-}
-//---------------------------------------------------------------------------
-
-
+// 	return TVPTempPath + TJS_W("krkr_") + ttstr(random) +
+// 		TJS_W("_") + ttstr(num) + TJS_W("_") + ttstr(TVPProcessID);
+// }
+// //---------------------------------------------------------------------------
 
 
 
 
-//---------------------------------------------------------------------------
-// TVPRemoveFile
-//---------------------------------------------------------------------------
-bool TVPRemoveFile(const ttstr &name)
-{
-	if(!procDeleteFileW)
-	{
-		tTJSNarrowStringHolder holder(name.c_str());
-		return DeleteFileA(holder);
-	}
-	else
-	{
-		return DeleteFileW(name.c_str());
-	}
-}
-//---------------------------------------------------------------------------
+
+
+// //---------------------------------------------------------------------------
+// // TVPRemoveFile
+// //---------------------------------------------------------------------------
+// bool TVPRemoveFile(const ttstr &name)
+// {
+// 	if(!procDeleteFileW)
+// 	{
+// 		tTJSNarrowStringHolder holder(name.c_str());
+// 		return DeleteFileA(holder);
+// 	}
+// 	else
+// 	{
+// 		return DeleteFileW(name.c_str());
+// 	}
+// }
+// //---------------------------------------------------------------------------
 
 
 
-//---------------------------------------------------------------------------
-// TVPRemoveFolder
-//---------------------------------------------------------------------------
-bool TVPRemoveFolder(const ttstr &name)
-{
-	if(!procRemoveDirectoryW)
-	{
-		tTJSNarrowStringHolder holder(name.c_str());
-		return RemoveDirectoryA(holder);
-	}
-	else
-	{
-		return RemoveDirectoryW(name.c_str());
-	}
-}
-//---------------------------------------------------------------------------
-
-
-
-
-//---------------------------------------------------------------------------
-// TVPGetAppPath
-//---------------------------------------------------------------------------
-ttstr TVPGetAppPath()
-{
-	static ttstr exepath(TVPExtractStoragePath(
-		TVPNormalizeStorageName(ParamStr(0))));
-	return exepath;
-}
-//---------------------------------------------------------------------------
+// //---------------------------------------------------------------------------
+// // TVPRemoveFolder
+// //---------------------------------------------------------------------------
+// bool TVPRemoveFolder(const ttstr &name)
+// {
+// 	if(!procRemoveDirectoryW)
+// 	{
+// 		tTJSNarrowStringHolder holder(name.c_str());
+// 		return RemoveDirectoryA(holder);
+// 	}
+// 	else
+// 	{
+// 		return RemoveDirectoryW(name.c_str());
+// 	}
+// }
+// //---------------------------------------------------------------------------
 
 
 
 
-//---------------------------------------------------------------------------
-// TVPOpenStream
-//---------------------------------------------------------------------------
-tTJSBinaryStream * TVPOpenStream(const ttstr & _name, tjs_uint32 flags)
-{
-	// open storage named "name".
-	// currently only local/network(by OS) storage systems are supported.
-	if(_name.IsEmpty())
-		TVPThrowExceptionMessage(TVPCannotOpenStorage, TJS_W("\"\""));
+// //---------------------------------------------------------------------------
+// // TVPGetAppPath
+// //---------------------------------------------------------------------------
+// ttstr TVPGetAppPath()
+// {
+// 	static ttstr exepath(TVPExtractStoragePath(
+// 		TVPNormalizeStorageName(ParamStr(0))));
+// 	return exepath;
+// }
+// //---------------------------------------------------------------------------
 
-	ttstr origname = _name;
-	ttstr name(_name);
-	TVPGetLocalName(name);
 
-	return new tTVPLocalFileStream(origname, name, flags);
-}
-//---------------------------------------------------------------------------
+
+
+// //---------------------------------------------------------------------------
+// // TVPOpenStream
+// //---------------------------------------------------------------------------
+// tTJSBinaryStream * TVPOpenStream(const ttstr & _name, tjs_uint32 flags)
+// {
+// 	// open storage named "name".
+// 	// currently only local/network(by OS) storage systems are supported.
+// 	if(_name.IsEmpty())
+// 		TVPThrowExceptionMessage(TVPCannotOpenStorage, TJS_W("\"\""));
+
+// 	ttstr origname = _name;
+// 	ttstr name(_name);
+// 	TVPGetLocalName(name);
+
+// 	return new tTVPLocalFileStream(origname, name, flags);
+// }
+// //---------------------------------------------------------------------------
 
 
 
@@ -440,10 +424,10 @@ tTJSBinaryStream * TVPOpenStream(const ttstr & _name, tjs_uint32 flags)
 bool TVPCheckExistentLocalFile(const ttstr &name)
 {
 	DWORD attrib;
-	if(procGetFileAttributesW)
-		attrib = procGetFileAttributesW(name.c_str());
-	else
-		attrib = GetFileAttributesA(name.AsAnsiString().c_str());
+	// if(procGetFileAttributesW)
+	// 	attrib = procGetFileAttributesW(name.c_str());
+	// else
+		attrib = GetFileAttributesA(name.AsStdString().c_str());
 
 	if(attrib == 0xffffffff || (attrib & FILE_ATTRIBUTE_DIRECTORY))
 		return false; // not a file
@@ -461,10 +445,10 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 bool TVPCheckExistentLocalFolder(const ttstr &name)
 {
 	DWORD attrib;
-	if(procGetFileAttributesW)
-		attrib = procGetFileAttributesW(name.c_str());
-	else
-		attrib = GetFileAttributesA(name.AsAnsiString().c_str());
+	// if(procGetFileAttributesW)
+	// 	attrib = procGetFileAttributesW(name.c_str());
+	// else
+		attrib = GetFileAttributesA(name.AsStdString().c_str());
 
 	if(attrib != 0xffffffff && (attrib & FILE_ATTRIBUTE_DIRECTORY))
 		return true; // a folder
@@ -543,11 +527,11 @@ static bool _TVPCreateFolders(const ttstr &folder)
 	if(!_TVPCreateFolders(parent)) return false;
 
 	BOOL res;
-	if(procCreateDirectoryW)
-	{
-		res = procCreateDirectoryW(folder.c_str(), NULL);
-	}
-	else
+	// if(procCreateDirectoryW)
+	// {
+	// 	res = procCreateDirectoryW(folder.c_str(), NULL);
+	// }
+	// else
 	{
 		tTJSNarrowStringHolder holder(folder.c_str());
 		res = CreateDirectoryA(holder, NULL);
@@ -602,18 +586,18 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	tjs_int trycount = 0;
 
 retry:
-	if(procCreateFileW)
-	{
-		Handle = procCreateFileW(
-			localname.c_str(),
-			rw,
-			FILE_SHARE_READ, // read shared accesss is strongly needed
-			NULL,
-			dwcd,
-			FILE_ATTRIBUTE_NORMAL,
-			NULL);
-	}
-	else
+	// if(procCreateFileW)
+	// {
+	// 	Handle = procCreateFileW(
+	// 		localname.c_str(),
+	// 		rw,
+	// 		FILE_SHARE_READ, // read shared accesss is strongly needed
+	// 		NULL,
+	// 		dwcd,
+	// 		FILE_ATTRIBUTE_NORMAL,
+	// 		NULL);
+	// }
+	// else
 	{
 		tTJSNarrowStringHolder holder(localname.c_str());
 		Handle = CreateFileA(
@@ -715,571 +699,571 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 
 
 
-//---------------------------------------------------------------------------
-// TTVPStreamAdapter
-//---------------------------------------------------------------------------
-__fastcall TTVPStreamAdapter::TTVPStreamAdapter(tTJSBinaryStream *ref)
-{
-	Stream = ref;
-	Stream->SetPosition(0);
-}
-//---------------------------------------------------------------------------
-__fastcall TTVPStreamAdapter::~TTVPStreamAdapter()
-{
-	delete Stream;
-}
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Read(void *Buffer, int Count)
-{
-	return (int)Stream->Read(Buffer, Count);
-}
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Seek(int Offset, WORD Origin)
-{
-	tjs_int whence;
-
-    // VCL Classes members
-    int soFromBegging = 0;
-    int soFromCurrent = 1;
-    int soFromEnd = 2;
-
-	switch(Origin)
-	{
-	case soFromBeginning:	whence = TJS_BS_SEEK_SET;		break;
-	case soFromCurrent:		whence = TJS_BS_SEEK_CUR;		break;
-	case soFromEnd:			whence = TJS_BS_SEEK_END;		break;
-	}
-
-	return (int)Stream->Seek(Offset, whence);
-}
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Write(const void *Buffer,int Count)
-{
-	return (int)Stream->Write(Buffer, Count);
-}
-//---------------------------------------------------------------------------
-
-
-
-
-
-//---------------------------------------------------------------------------
-// tTVPIStreamAdapter
-//---------------------------------------------------------------------------
-/*
-	this class provides adapter for COM's IStream
-*/
-tTVPIStreamAdapter::tTVPIStreamAdapter(tTJSBinaryStream *ref)
-{
-	Stream = ref;
-	RefCount = 1;
-}
-//---------------------------------------------------------------------------
-tTVPIStreamAdapter::~tTVPIStreamAdapter()
-{
-	delete Stream;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
-		void **ppvObject)
-{
-	if(!ppvObject) return E_INVALIDARG;
-
-	*ppvObject=NULL;
-	if(!memcmp(&riid,&IID_IUnknown,16))
-		*ppvObject=(IUnknown*)this;
-	else if(!memcmp(&riid,&IID_ISequentialStream,16))
-		*ppvObject=(ISequentialStream*)this;
-	else if(!memcmp(&riid,&IID_IStream,16))
-		*ppvObject=(IStream*)this;
-
-	if(*ppvObject)
-	{
-		AddRef();
-		return S_OK;
-	}
-	return E_NOINTERFACE;
-}
-//---------------------------------------------------------------------------
-ULONG STDMETHODCALLTYPE tTVPIStreamAdapter::AddRef(void)
-{
-	return ++ RefCount;
-}
-//---------------------------------------------------------------------------
-ULONG STDMETHODCALLTYPE tTVPIStreamAdapter::Release(void)
-{
-	if(RefCount == 1)
-	{
-		delete this;
-		return 0;
-	}
-	else
-	{
-		return --RefCount;
-	}
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Read(void *pv, ULONG cb, ULONG *pcbRead)
-{
-	try
-	{
-		ULONG read;
-		read = Stream->Read(pv, cb);
-		if(pcbRead) *pcbRead = read;
-	}
-	catch(...)
-	{
-		return E_FAIL;
-	}
-	return S_OK;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Write(const void *pv, ULONG cb,
-		ULONG *pcbWritten)
-{
-	try
-	{
-		ULONG written;
-		written = Stream->Write(pv, cb);
-		if(pcbWritten) *pcbWritten = written;
-	}
-	catch(...)
-	{
-		return E_FAIL;
-	}
-	return S_OK;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Seek(LARGE_INTEGER dlibMove,
-	DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition)
-{
-	try
-	{
-		switch(dwOrigin)
-		{
-		case STREAM_SEEK_SET:
-			if(plibNewPosition)
-				(*plibNewPosition).QuadPart =
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
-			else
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
-			break;
-		case STREAM_SEEK_CUR:
-			if(plibNewPosition)
-				(*plibNewPosition).QuadPart =
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
-			else
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
-			break;
-		case STREAM_SEEK_END:
-			if(plibNewPosition)
-				(*plibNewPosition).QuadPart =
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
-			else
-					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
-			break;
-		default:
-			return E_FAIL;
-		}
-	}
-	catch(...)
-	{
-		return E_FAIL;
-	}
-	return S_OK;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::SetSize(ULARGE_INTEGER libNewSize)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::CopyTo(IStream *pstm, ULARGE_INTEGER cb,
-	ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Commit(DWORD grfCommitFlags)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Revert(void)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::LockRegion(ULARGE_INTEGER libOffset,
-	ULARGE_INTEGER cb, DWORD dwLockType)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::UnlockRegion(ULARGE_INTEGER libOffset,
-	ULARGE_INTEGER cb, DWORD dwLockType)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
-{
-	// This method imcompletely fills the target structure, because some
-	// informations like access mode or stream name are already lost
-	// at this point.
-
-	if(pstatstg)
-	{
-		ZeroMemory(pstatstg, sizeof(*pstatstg));
-
-		// pwcsName
-		// this object's storage pointer does not have a name ...
-		if(!(grfStatFlag &  STATFLAG_NONAME))
-		{
-			// anyway returns an empty string
-			LPWSTR str = (LPWSTR)CoTaskMemAlloc(sizeof(*str));
-			if(str == NULL) return E_OUTOFMEMORY;
-			*str = L'\0';
-			pstatstg->pwcsName = str;
-		}
-
-		// type
-		pstatstg->type = STGTY_STREAM;
-
-		// cbSize
-		pstatstg->cbSize.QuadPart = Stream->GetSize();
-
-		// mtime, ctime, atime unknown
-
-		// grfMode unknown
-		pstatstg->grfMode = STGM_DIRECT | STGM_READWRITE | STGM_SHARE_DENY_WRITE ;
-			// Note that this method always returns flags above, regardless of the
-			// actual mode.
-			// In the return value, the stream is to be indicated that the
-			// stream can be written, but of cource, the Write method will fail
-			// if the stream is read-only.
-
-		// grfLockSuppoted
-		pstatstg->grfLocksSupported = 0;
-
-		// grfStatBits unknown
-	}
-	else
-	{
-		return E_INVALIDARG;
-	}
-
-	return S_OK;
-}
-//---------------------------------------------------------------------------
-HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Clone(IStream **ppstm)
-{
-	return E_NOTIMPL;
-}
-//---------------------------------------------------------------------------
-
-
-
-
-
-//---------------------------------------------------------------------------
-// IStream creator
-//---------------------------------------------------------------------------
-IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
-{
-	// convert tTJSBinaryStream to IStream thru TStream
-
-	tTJSBinaryStream *stream0 = NULL;
-	try
-	{
-		stream0 = TVPCreateStream(name, flags);
-	}
-	catch(...)
-	{
-		if(stream0) delete stream0;
-		return NULL;
-	}
-
-	IStream *istream = new tTVPIStreamAdapter(stream0);
-
-	return istream;
-}
-//---------------------------------------------------------------------------
-
-
-
-
-
-
-//---------------------------------------------------------------------------
-// tTVPBinaryStreamAdapter
-//---------------------------------------------------------------------------
-tTVPBinaryStreamAdapter::tTVPBinaryStreamAdapter(IStream *ref)
-{
-	Stream = ref;
-	Stream->AddRef();
-}
-//---------------------------------------------------------------------------
-tTVPBinaryStreamAdapter::~tTVPBinaryStreamAdapter()
-{
-	Stream->Release();
-}
-//---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPBinaryStreamAdapter::Seek(tjs_int64 offset, tjs_int whence)
-{
-	DWORD origin;
-
-	switch(whence)
-	{
-	case TJS_BS_SEEK_SET:			origin = STREAM_SEEK_SET;		break;
-	case TJS_BS_SEEK_CUR:			origin = STREAM_SEEK_CUR;		break;
-	case TJS_BS_SEEK_END:			origin = STREAM_SEEK_END;		break;
-	default:						origin = STREAM_SEEK_SET;		break;
-	}
-
-	LARGE_INTEGER ofs;
-	ULARGE_INTEGER newpos;
-
-	ofs.QuadPart = 0;
-	HRESULT hr = Stream->Seek(ofs, STREAM_SEEK_CUR, &newpos);
-	bool orgpossaved;
-	LARGE_INTEGER orgpos;
-	if(FAILED(hr))
-	{
-		orgpossaved = false;
-	}
-	else
-	{
-		orgpossaved = true;
-		*(LARGE_INTEGER*)&orgpos = *(LARGE_INTEGER*)&newpos;
-	}
-
-	ofs.QuadPart = offset;
-
-	hr = Stream->Seek(ofs, origin, &newpos);
-	if(FAILED(hr))
-	{
-		if(orgpossaved)
-		{
-			Stream->Seek(orgpos, STREAM_SEEK_SET, &newpos);
-		}
-		else
-		{
-			TVPThrowExceptionMessage(TVPSeekError);
-		}
-	}
-
-	return newpos.QuadPart;
-}
-//---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPBinaryStreamAdapter::Read(void *buffer, tjs_uint read_size)
-{
-	ULONG cb = read_size;
-	ULONG read;
-	HRESULT hr = Stream->Read(buffer, cb, &read);
-	if(FAILED(hr)) read = 0;
-	return read;
-}
-//---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPBinaryStreamAdapter::Write(const void *buffer, tjs_uint write_size)
-{
-	ULONG cb = write_size;
-	ULONG written;
-	HRESULT hr = Stream->Write(buffer, cb, &written);
-	if(FAILED(hr)) written = 0;
-	return written;
-}
-//---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPBinaryStreamAdapter::GetSize()
-{
-	HRESULT hr;
-	STATSTG stg;
-
-	hr = Stream->Stat(&stg, STATFLAG_NONAME);
-	if(FAILED(hr))
-	{
-		return inherited::GetSize(); // use default routine
-	}
-
-	return stg.cbSize.QuadPart;
-}
-//---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBinaryStreamAdapter::SetEndOfStorage()
-{
-	ULARGE_INTEGER pos;
-	pos.QuadPart = GetPosition();
-	HRESULT hr = Stream->SetSize(pos);
-	if(FAILED(hr)) TVPThrowExceptionMessage(TVPTruncateError);
-}
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-// TVPCreateBinaryStreamAdapter
-//---------------------------------------------------------------------------
-tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
-{
-	return new  tTVPBinaryStreamAdapter(refstream);
-}
-//---------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-//---------------------------------------------------------------------------
-// tTVPPluginHolder
-//---------------------------------------------------------------------------
-tTVPPluginHolder::tTVPPluginHolder(const ttstr &aname)
-{
-	LocalTempStorageHolder = NULL;
-
-	// search in TVP storage system
-	ttstr place(TVPGetPlacedPath(aname));
-	if(!place.IsEmpty())
-	{
-		LocalTempStorageHolder = new tTVPLocalTempStorageHolder(place);
-	}
-	else
-	{
-		// not found in TVP storage system; search exepath, exepath\system, exepath\plugin
-		ttstr exepath =
-			IncludeTrailingBackslash(ExtractFileDir(ParamStr(0)));
-		ttstr pname = exepath + aname;
-		if(TVPCheckExistentLocalFile(pname))
-		{
-			LocalName = pname;
-			return;
-		}
-
-		pname = exepath + TJS_W("system\\") + aname;
-		if(TVPCheckExistentLocalFile(pname))
-		{
-			LocalName = pname;
-			return;
-		}
-
-		pname = exepath + TJS_W("plugin\\") + aname;
-		if(TVPCheckExistentLocalFile(pname))
-		{
-			LocalName = pname;
-			return;
-		}
-	}
-}
-//---------------------------------------------------------------------------
-tTVPPluginHolder::~tTVPPluginHolder()
-{
-	if(LocalTempStorageHolder)
-	{
-		delete LocalTempStorageHolder;
-	}
-}
-//---------------------------------------------------------------------------
-const ttstr & tTVPPluginHolder::GetLocalName() const
-{
-	if(LocalTempStorageHolder) return LocalTempStorageHolder->GetLocalName();
-	return LocalName;
-}
-//---------------------------------------------------------------------------
-
-
-
-
-//---------------------------------------------------------------------------
-// TVPSearchCD
-//---------------------------------------------------------------------------
-ttstr TVPSearchCD(const ttstr & name)
-{
-	// search CD which has specified volume label name.
-	// return drive letter ( such as 'A' or 'B' )
-	// return empty string if not found.
-	AnsiString narrow_name = name.AsAnsiString();
-
-	char dr[4];
-	for(dr[0]='A',dr[1]=':',dr[2]='\\',dr[3]=0;dr[0]<='Z';dr[0]++)
-	{
-		if(GetDriveType(dr) == DRIVE_CDROM)
-		{
-			char vlabel[256];
-			char fs[256];
-			DWORD mcl = 0,sfs = 0;
-			GetVolumeInformation(dr, vlabel, 255, NULL, &mcl, &sfs, fs, 255);
-			if(AnsiString(vlabel).AnsiCompareIC(narrow_name)==0)
-				return ttstr((tjs_char)dr[0]);
-		}
-	}
-	return ttstr();
-}
-//---------------------------------------------------------------------------
-
-
-
-
-//---------------------------------------------------------------------------
-// TVPCreateNativeClass_Storages
-//---------------------------------------------------------------------------
-tTJSNativeClass * TVPCreateNativeClass_Storages()
-{
-	tTJSNC_Storages *cls = new tTJSNC_Storages();
-
-
-	// setup some platform-specific members
-//----------------------------------------------------------------------
-
-//-- methods
-
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/searchCD)
-{
-	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
-
-	if(result)
-		*result = TVPSearchCD(*param[0]);
-
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
-	/*func. name*/searchCD)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/getLocalName)
-{
-	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
-
-	if(result)
-	{
-		ttstr str(TVPNormalizeStorageName(*param[0]));
-		TVPGetLocalName(str);
-		*result = str;
-	}
-
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
-	/*func. name*/getLocalName)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/selectFile)
-{
-	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
-
-	iTJSDispatch2 * dsp =  param[0]->AsObjectNoAddRef();
-
-	bool res = TVPSelectFile(dsp);
-
-	if(result) *result = (tjs_int)res;
-
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
-	/*func. name*/selectFile)
-//----------------------------------------------------------------------
-
-
-	return cls;
-
-}
-//---------------------------------------------------------------------------
+// //---------------------------------------------------------------------------
+// // TTVPStreamAdapter
+// //---------------------------------------------------------------------------
+// __fastcall TTVPStreamAdapter::TTVPStreamAdapter(tTJSBinaryStream *ref)
+// {
+// 	Stream = ref;
+// 	Stream->SetPosition(0);
+// }
+// //---------------------------------------------------------------------------
+// __fastcall TTVPStreamAdapter::~TTVPStreamAdapter()
+// {
+// 	delete Stream;
+// }
+// //---------------------------------------------------------------------------
+// int __fastcall TTVPStreamAdapter::Read(void *Buffer, int Count)
+// {
+// 	return (int)Stream->Read(Buffer, Count);
+// }
+// //---------------------------------------------------------------------------
+// int __fastcall TTVPStreamAdapter::Seek(int Offset, WORD Origin)
+// {
+// 	tjs_int whence;
+
+//     // VCL Classes members
+//     int soFromBeginning = 0;
+//     int soFromCurrent = 1;
+//     int soFromEnd = 2;
+
+// 	switch(Origin)
+// 	{
+// 	case soFromBeginning:	whence = TJS_BS_SEEK_SET;		break;
+// 	case soFromCurrent:		whence = TJS_BS_SEEK_CUR;		break;
+// 	case soFromEnd:			whence = TJS_BS_SEEK_END;		break;
+// 	}
+
+// 	return (int)Stream->Seek(Offset, whence);
+// }
+// //---------------------------------------------------------------------------
+// int __fastcall TTVPStreamAdapter::Write(const void *Buffer,int Count)
+// {
+// 	return (int)Stream->Write(Buffer, Count);
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+
+// //---------------------------------------------------------------------------
+// // tTVPIStreamAdapter
+// //---------------------------------------------------------------------------
+// /*
+// 	this class provides adapter for COM's IStream
+// */
+// tTVPIStreamAdapter::tTVPIStreamAdapter(tTJSBinaryStream *ref)
+// {
+// 	Stream = ref;
+// 	RefCount = 1;
+// }
+// //---------------------------------------------------------------------------
+// tTVPIStreamAdapter::~tTVPIStreamAdapter()
+// {
+// 	delete Stream;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
+// 		void **ppvObject)
+// {
+// 	if(!ppvObject) return E_INVALIDARG;
+
+// 	*ppvObject=NULL;
+// 	if(!memcmp(&riid,&IID_IUnknown,16))
+// 		*ppvObject=(IUnknown*)this;
+// 	else if(!memcmp(&riid,&IID_ISequentialStream,16))
+// 		*ppvObject=(ISequentialStream*)this;
+// 	else if(!memcmp(&riid,&IID_IStream,16))
+// 		*ppvObject=(IStream*)this;
+
+// 	if(*ppvObject)
+// 	{
+// 		AddRef();
+// 		return S_OK;
+// 	}
+// 	return E_NOINTERFACE;
+// }
+// //---------------------------------------------------------------------------
+// ULONG STDMETHODCALLTYPE tTVPIStreamAdapter::AddRef(void)
+// {
+// 	return ++ RefCount;
+// }
+// //---------------------------------------------------------------------------
+// ULONG STDMETHODCALLTYPE tTVPIStreamAdapter::Release(void)
+// {
+// 	if(RefCount == 1)
+// 	{
+// 		delete this;
+// 		return 0;
+// 	}
+// 	else
+// 	{
+// 		return --RefCount;
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Read(void *pv, ULONG cb, ULONG *pcbRead)
+// {
+// 	try
+// 	{
+// 		ULONG read;
+// 		read = Stream->Read(pv, cb);
+// 		if(pcbRead) *pcbRead = read;
+// 	}
+// 	catch(...)
+// 	{
+// 		return E_FAIL;
+// 	}
+// 	return S_OK;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Write(const void *pv, ULONG cb,
+// 		ULONG *pcbWritten)
+// {
+// 	try
+// 	{
+// 		ULONG written;
+// 		written = Stream->Write(pv, cb);
+// 		if(pcbWritten) *pcbWritten = written;
+// 	}
+// 	catch(...)
+// 	{
+// 		return E_FAIL;
+// 	}
+// 	return S_OK;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Seek(LARGE_INTEGER dlibMove,
+// 	DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition)
+// {
+// 	try
+// 	{
+// 		switch(dwOrigin)
+// 		{
+// 		case STREAM_SEEK_SET:
+// 			if(plibNewPosition)
+// 				(*plibNewPosition).QuadPart =
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
+// 			else
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
+// 			break;
+// 		case STREAM_SEEK_CUR:
+// 			if(plibNewPosition)
+// 				(*plibNewPosition).QuadPart =
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
+// 			else
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
+// 			break;
+// 		case STREAM_SEEK_END:
+// 			if(plibNewPosition)
+// 				(*plibNewPosition).QuadPart =
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
+// 			else
+// 					Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
+// 			break;
+// 		default:
+// 			return E_FAIL;
+// 		}
+// 	}
+// 	catch(...)
+// 	{
+// 		return E_FAIL;
+// 	}
+// 	return S_OK;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::SetSize(ULARGE_INTEGER libNewSize)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::CopyTo(IStream *pstm, ULARGE_INTEGER cb,
+// 	ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Commit(DWORD grfCommitFlags)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Revert(void)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::LockRegion(ULARGE_INTEGER libOffset,
+// 	ULARGE_INTEGER cb, DWORD dwLockType)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::UnlockRegion(ULARGE_INTEGER libOffset,
+// 	ULARGE_INTEGER cb, DWORD dwLockType)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
+// {
+// 	// This method imcompletely fills the target structure, because some
+// 	// informations like access mode or stream name are already lost
+// 	// at this point.
+
+// 	if(pstatstg)
+// 	{
+// 		ZeroMemory(pstatstg, sizeof(*pstatstg));
+
+// 		// pwcsName
+// 		// this object's storage pointer does not have a name ...
+// 		if(!(grfStatFlag &  STATFLAG_NONAME))
+// 		{
+// 			// anyway returns an empty string
+// 			LPWSTR str = (LPWSTR)CoTaskMemAlloc(sizeof(*str));
+// 			if(str == NULL) return E_OUTOFMEMORY;
+// 			*str = L'\0';
+// 			pstatstg->pwcsName = str;
+// 		}
+
+// 		// type
+// 		pstatstg->type = STGTY_STREAM;
+
+// 		// cbSize
+// 		pstatstg->cbSize.QuadPart = Stream->GetSize();
+
+// 		// mtime, ctime, atime unknown
+
+// 		// grfMode unknown
+// 		pstatstg->grfMode = STGM_DIRECT | STGM_READWRITE | STGM_SHARE_DENY_WRITE ;
+// 			// Note that this method always returns flags above, regardless of the
+// 			// actual mode.
+// 			// In the return value, the stream is to be indicated that the
+// 			// stream can be written, but of cource, the Write method will fail
+// 			// if the stream is read-only.
+
+// 		// grfLockSuppoted
+// 		pstatstg->grfLocksSupported = 0;
+
+// 		// grfStatBits unknown
+// 	}
+// 	else
+// 	{
+// 		return E_INVALIDARG;
+// 	}
+
+// 	return S_OK;
+// }
+// //---------------------------------------------------------------------------
+// HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Clone(IStream **ppstm)
+// {
+// 	return E_NOTIMPL;
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+
+// //---------------------------------------------------------------------------
+// // IStream creator
+// //---------------------------------------------------------------------------
+// IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
+// {
+// 	// convert tTJSBinaryStream to IStream thru TStream
+
+// 	tTJSBinaryStream *stream0 = NULL;
+// 	try
+// 	{
+// 		stream0 = TVPCreateStream(name, flags);
+// 	}
+// 	catch(...)
+// 	{
+// 		if(stream0) delete stream0;
+// 		return NULL;
+// 	}
+
+// 	IStream *istream = new tTVPIStreamAdapter(stream0);
+
+// 	return istream;
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+
+
+// //---------------------------------------------------------------------------
+// // tTVPBinaryStreamAdapter
+// //---------------------------------------------------------------------------
+// tTVPBinaryStreamAdapter::tTVPBinaryStreamAdapter(IStream *ref)
+// {
+// 	Stream = ref;
+// 	Stream->AddRef();
+// }
+// //---------------------------------------------------------------------------
+// tTVPBinaryStreamAdapter::~tTVPBinaryStreamAdapter()
+// {
+// 	Stream->Release();
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint64 TJS_INTF_METHOD tTVPBinaryStreamAdapter::Seek(tjs_int64 offset, tjs_int whence)
+// {
+// 	DWORD origin;
+
+// 	switch(whence)
+// 	{
+// 	case TJS_BS_SEEK_SET:			origin = STREAM_SEEK_SET;		break;
+// 	case TJS_BS_SEEK_CUR:			origin = STREAM_SEEK_CUR;		break;
+// 	case TJS_BS_SEEK_END:			origin = STREAM_SEEK_END;		break;
+// 	default:						origin = STREAM_SEEK_SET;		break;
+// 	}
+
+// 	LARGE_INTEGER ofs;
+// 	ULARGE_INTEGER newpos;
+
+// 	ofs.QuadPart = 0;
+// 	HRESULT hr = Stream->Seek(ofs, STREAM_SEEK_CUR, &newpos);
+// 	bool orgpossaved;
+// 	LARGE_INTEGER orgpos;
+// 	if(FAILED(hr))
+// 	{
+// 		orgpossaved = false;
+// 	}
+// 	else
+// 	{
+// 		orgpossaved = true;
+// 		*(LARGE_INTEGER*)&orgpos = *(LARGE_INTEGER*)&newpos;
+// 	}
+
+// 	ofs.QuadPart = offset;
+
+// 	hr = Stream->Seek(ofs, origin, &newpos);
+// 	if(FAILED(hr))
+// 	{
+// 		if(orgpossaved)
+// 		{
+// 			Stream->Seek(orgpos, STREAM_SEEK_SET, &newpos);
+// 		}
+// 		else
+// 		{
+// 			TVPThrowExceptionMessage(TVPSeekError);
+// 		}
+// 	}
+
+// 	return newpos.QuadPart;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint TJS_INTF_METHOD tTVPBinaryStreamAdapter::Read(void *buffer, tjs_uint read_size)
+// {
+// 	ULONG cb = read_size;
+// 	ULONG read;
+// 	HRESULT hr = Stream->Read(buffer, cb, &read);
+// 	if(FAILED(hr)) read = 0;
+// 	return read;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint TJS_INTF_METHOD tTVPBinaryStreamAdapter::Write(const void *buffer, tjs_uint write_size)
+// {
+// 	ULONG cb = write_size;
+// 	ULONG written;
+// 	HRESULT hr = Stream->Write(buffer, cb, &written);
+// 	if(FAILED(hr)) written = 0;
+// 	return written;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint64 TJS_INTF_METHOD tTVPBinaryStreamAdapter::GetSize()
+// {
+// 	HRESULT hr;
+// 	STATSTG stg;
+
+// 	hr = Stream->Stat(&stg, STATFLAG_NONAME);
+// 	if(FAILED(hr))
+// 	{
+// 		return inherited::GetSize(); // use default routine
+// 	}
+
+// 	return stg.cbSize.QuadPart;
+// }
+// //---------------------------------------------------------------------------
+// void TJS_INTF_METHOD tTVPBinaryStreamAdapter::SetEndOfStorage()
+// {
+// 	ULARGE_INTEGER pos;
+// 	pos.QuadPart = GetPosition();
+// 	HRESULT hr = Stream->SetSize(pos);
+// 	if(FAILED(hr)) TVPThrowExceptionMessage(TVPTruncateError);
+// }
+// //---------------------------------------------------------------------------
+
+
+// //---------------------------------------------------------------------------
+// // TVPCreateBinaryStreamAdapter
+// //---------------------------------------------------------------------------
+// tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
+// {
+// 	return new  tTVPBinaryStreamAdapter(refstream);
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+// //---------------------------------------------------------------------------
+// // tTVPPluginHolder
+// //---------------------------------------------------------------------------
+// tTVPPluginHolder::tTVPPluginHolder(const ttstr &aname)
+// {
+// 	LocalTempStorageHolder = NULL;
+
+// 	// search in TVP storage system
+// 	ttstr place(TVPGetPlacedPath(aname));
+// 	if(!place.IsEmpty())
+// 	{
+// 		LocalTempStorageHolder = new tTVPLocalTempStorageHolder(place);
+// 	}
+// 	else
+// 	{
+// 		// not found in TVP storage system; search exepath, exepath\system, exepath\plugin
+// 		ttstr exepath =
+// 			IncludeTrailingBackslash(ExtractFileDir(ParamStr(0)));
+// 		ttstr pname = exepath + aname;
+// 		if(TVPCheckExistentLocalFile(pname))
+// 		{
+// 			LocalName = pname;
+// 			return;
+// 		}
+
+// 		pname = exepath + TJS_W("system\\") + aname;
+// 		if(TVPCheckExistentLocalFile(pname))
+// 		{
+// 			LocalName = pname;
+// 			return;
+// 		}
+
+// 		pname = exepath + TJS_W("plugin\\") + aname;
+// 		if(TVPCheckExistentLocalFile(pname))
+// 		{
+// 			LocalName = pname;
+// 			return;
+// 		}
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// tTVPPluginHolder::~tTVPPluginHolder()
+// {
+// 	if(LocalTempStorageHolder)
+// 	{
+// 		delete LocalTempStorageHolder;
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// const ttstr & tTVPPluginHolder::GetLocalName() const
+// {
+// 	if(LocalTempStorageHolder) return LocalTempStorageHolder->GetLocalName();
+// 	return LocalName;
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+// //---------------------------------------------------------------------------
+// // TVPSearchCD
+// //---------------------------------------------------------------------------
+// ttstr TVPSearchCD(const ttstr & name)
+// {
+// 	// search CD which has specified volume label name.
+// 	// return drive letter ( such as 'A' or 'B' )
+// 	// return empty string if not found.
+// 	AnsiString narrow_name = name.AsAnsiString();
+
+// 	char dr[4];
+// 	for(dr[0]='A',dr[1]=':',dr[2]='\\',dr[3]=0;dr[0]<='Z';dr[0]++)
+// 	{
+// 		if(GetDriveType(dr) == DRIVE_CDROM)
+// 		{
+// 			char vlabel[256];
+// 			char fs[256];
+// 			DWORD mcl = 0,sfs = 0;
+// 			GetVolumeInformation(dr, vlabel, 255, NULL, &mcl, &sfs, fs, 255);
+// 			if(AnsiString(vlabel).AnsiCompareIC(narrow_name)==0)
+// 				return ttstr((tjs_char)dr[0]);
+// 		}
+// 	}
+// 	return ttstr();
+// }
+// //---------------------------------------------------------------------------
+
+
+
+
+// //---------------------------------------------------------------------------
+// // TVPCreateNativeClass_Storages
+// //---------------------------------------------------------------------------
+// tTJSNativeClass * TVPCreateNativeClass_Storages()
+// {
+// 	tTJSNC_Storages *cls = new tTJSNC_Storages();
+
+
+// 	// setup some platform-specific members
+// //----------------------------------------------------------------------
+
+// //-- methods
+
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/searchCD)
+// {
+// 	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+
+// 	if(result)
+// 		*result = TVPSearchCD(*param[0]);
+
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
+// 	/*func. name*/searchCD)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/getLocalName)
+// {
+// 	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+
+// 	if(result)
+// 	{
+// 		ttstr str(TVPNormalizeStorageName(*param[0]));
+// 		TVPGetLocalName(str);
+// 		*result = str;
+// 	}
+
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
+// 	/*func. name*/getLocalName)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/selectFile)
+// {
+// 	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+
+// 	iTJSDispatch2 * dsp =  param[0]->AsObjectNoAddRef();
+
+// 	bool res = TVPSelectFile(dsp);
+
+// 	if(result) *result = (tjs_int)res;
+
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
+// 	/*func. name*/selectFile)
+// //----------------------------------------------------------------------
+
+
+// 	return cls;
+
+// }
+// //---------------------------------------------------------------------------

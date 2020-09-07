@@ -13,13 +13,14 @@
 #include <time.h>
 #include "StorageImpl.h"
 #include "SusieArchive.h"
-#include "WideNativeFuncs.h"
+// #include "WideNativeFuncs.h"
 #include "GraphicsLoaderImpl.h"
 #include "DebugIntf.h"
 #include "XP3Archive.h"
 #include "MsgIntf.h"
-#include "SysInitIntf.h"
+// #include "SysInitIntf.h"
 #include <algorithm>
+#include <string>
 
 //---------------------------------------------------------------------------
 
@@ -69,11 +70,11 @@ public:
 
 	bool CanRelease() { return LockCount <= 0; }
 
-	bool CheckSupported(tTVPLocalFileStream * stream, AnsiString localname);
+	bool CheckSupported(tTVPLocalFileStream * stream, std::string localname);
 
-	void GetFileList(AnsiString localname, std::vector<tTVPSusieFileRecord> &dest);
+	void GetFileList(std::string localname, std::vector<tTVPSusieFileRecord> &dest);
 
-	tTJSBinaryStream * CreateStream(AnsiString localname,
+	tTJSBinaryStream * CreateStream(std::string localname,
 		unsigned long pos, unsigned long sise);
 
 	tTJSCriticalSection & GetCS() { return CS; }
@@ -104,14 +105,14 @@ void tTVPSusieArchivePlugin::Unlock()
 }
 //---------------------------------------------------------------------------
 bool tTVPSusieArchivePlugin::CheckSupported(tTVPLocalFileStream * stream,
-	AnsiString localname)
+	std::string localname)
 {
 	int res = IsSupported(localname.c_str(), (DWORD)stream->GetHandle());
 
 	return (bool)res;
 }
 //---------------------------------------------------------------------------
-void tTVPSusieArchivePlugin::GetFileList(AnsiString localname,
+void tTVPSusieArchivePlugin::GetFileList(std::string localname,
 	std::vector<tTVPSusieFileRecord> &dest)
 {
 	// retrieve file list
@@ -182,7 +183,7 @@ void tTVPSusieArchivePlugin::GetFileList(AnsiString localname,
 	TVPAddLog(TJS_W("(info) ") + ttstr((tjs_int)dest.size()) + TJS_W(" files found."));
 }
 //---------------------------------------------------------------------------
-tTJSBinaryStream * tTVPSusieArchivePlugin::CreateStream(AnsiString localname,
+tTJSBinaryStream * tTVPSusieArchivePlugin::CreateStream(std::string localname,
 	unsigned long pos, unsigned long size)
 {
 	HLOCAL memhandle = NULL;
@@ -230,16 +231,16 @@ tTJSBinaryStream * tTVPSusieArchivePlugin::CreateStream(AnsiString localname,
 //---------------------------------------------------------------------------
 static std::vector<tTVPSusieArchivePlugin*> TVPSusiePluginVector;
 
-static void TVPDestroySusiePluginList()
-{
-	std::vector<tTVPSusieArchivePlugin*>::iterator i;
-	for(i = TVPSusiePluginVector.begin(); i != TVPSusiePluginVector.end(); i++)
-	{
-		delete *i;
-	}
-}
-static tTVPAtExit TVPDestroySusiePluginListAtExit
-	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroySusiePluginList);
+// static void TVPDestroySusiePluginList()
+// {
+// 	std::vector<tTVPSusieArchivePlugin*>::iterator i;
+// 	for(i = TVPSusiePluginVector.begin(); i != TVPSusiePluginVector.end(); i++)
+// 	{
+// 		delete *i;
+// 	}
+// }
+// static tTVPAtExit TVPDestroySusiePluginListAtExit
+// 	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroySusiePluginList);
 //---------------------------------------------------------------------------
 
 
@@ -296,7 +297,7 @@ void TVPUnloadArchiveSPI(HINSTANCE inst)
 //---------------------------------------------------------------------------
 // TVPCheckSusieSupport : checks which plugin supports specified archive
 //---------------------------------------------------------------------------
-tTVPSusieArchivePlugin * TVPCheckSusieSupport(const ttstr &name, AnsiString &a_localname)
+tTVPSusieArchivePlugin * TVPCheckSusieSupport(const ttstr &name, std::string &a_localname)
 {
 	if(TVPSusiePluginVector.size() == 0) return NULL;
 
@@ -305,7 +306,7 @@ tTVPSusieArchivePlugin * TVPCheckSusieSupport(const ttstr &name, AnsiString &a_l
 
 	if(localname.GetLen() == 0) return NULL; // only local filesystem stream is supported
 
-	a_localname = localname.AsAnsiString();
+	a_localname = localname.AsStdString();
 
 	std::vector<tTVPSusieArchivePlugin*>::iterator i;
 	for(i = TVPSusiePluginVector.end() - 1; i >= TVPSusiePluginVector.begin(); i--)
@@ -328,12 +329,12 @@ tTVPSusieArchivePlugin * TVPCheckSusieSupport(const ttstr &name, AnsiString &a_l
 class tTVPSusieArchive : public tTVPArchive
 {
 	tTVPSusieArchivePlugin *Plugin;
-	AnsiString LocalName;
+	std::string LocalName;
 	std::vector<tTVPSusieFileRecord> FileRecords;
 
 public:
 	tTVPSusieArchive(tTVPSusieArchivePlugin *plugin, const ttstr & name,
-		AnsiString localname);
+		std::string localname);
 	~tTVPSusieArchive();
 
 	tjs_uint GetCount();
@@ -343,7 +344,7 @@ public:
 };
 //---------------------------------------------------------------------------
 tTVPSusieArchive::tTVPSusieArchive(tTVPSusieArchivePlugin *plugin,
-	const ttstr &name, AnsiString localname) : tTVPArchive(name)
+	const ttstr &name, std::string localname) : tTVPArchive(name)
 {
 	LocalName = localname;
 	Plugin = plugin;
@@ -387,7 +388,7 @@ tTJSBinaryStream * tTVPSusieArchive::CreateStreamByIndex(tjs_uint idx)
 //---------------------------------------------------------------------------
 tTVPArchive * TVPOpenSusieArchive(const ttstr & name)
 {
-	AnsiString localname;
+	std::string localname;
 	tTVPSusieArchivePlugin *plugin = TVPCheckSusieSupport(name, localname);
 	if(plugin)
 	{

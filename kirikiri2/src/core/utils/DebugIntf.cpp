@@ -64,8 +64,8 @@ static void TVPDestroyLogObjects()
 	if(TVPImportantLogs) delete TVPImportantLogs, TVPImportantLogs = NULL;
 }
 //---------------------------------------------------------------------------
-tTVPAtExit TVPDestroyLogObjectsAtExit
-	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroyLogObjects);
+// tTVPAtExit TVPDestroyLogObjectsAtExit
+// 	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroyLogObjects);
 //---------------------------------------------------------------------------
 
 
@@ -113,119 +113,119 @@ public:
 
 } static TVPLogStreamHolder;
 //---------------------------------------------------------------------------
-void tTVPLogStreamHolder::Open(const tjs_nchar *mode)
-{
-	if(OpenFailed) return; // no more try
+// void tTVPLogStreamHolder::Open(const tjs_nchar *mode)
+// {
+// 	if(OpenFailed) return; // no more try
 
-	try
-	{
-		tjs_nchar filename[MAX_PATH];
-		if(TVPLogLocation.GetLen() == 0)
-		{
-			Stream = NULL;
-			OpenFailed = true;
-		}
-		else
-		{
-			// no log location specified
-			TJS_nstrcpy(filename, TVPNativeLogLocation);
-			TJS_nstrcat(filename, TJS_N("\\krkr.console.log"));
-			TVPEnsureDataPathDirectory();
-			Stream = fopen(filename, mode);
-			if(!Stream) OpenFailed = true;
-		}
+// 	try
+// 	{
+// 		tjs_nchar filename[MAX_PATH];
+// 		if(TVPLogLocation.GetLen() == 0)
+// 		{
+// 			Stream = NULL;
+// 			OpenFailed = true;
+// 		}
+// 		else
+// 		{
+// 			// no log location specified
+// 			TJS_nstrcpy(filename, TVPNativeLogLocation);
+// 			TJS_nstrcat(filename, TJS_N("\\krkr.console.log"));
+// 			TVPEnsureDataPathDirectory();
+// 			Stream = fopen(filename, mode);
+// 			if(!Stream) OpenFailed = true;
+// 		}
 
-		if(Stream)
-		{
-			fseek(Stream, 0, SEEK_END);
-			if(ftell(Stream) == 0)
-			{
-				// write BOM
-				// TODO: 32-bit unicode support
-				fwrite(TJS_N("\xff\xfe"), 1, 2, Stream); // indicate unicode text
-			}
+// 		if(Stream)
+// 		{
+// 			fseek(Stream, 0, SEEK_END);
+// 			if(ftell(Stream) == 0)
+// 			{
+// 				// write BOM
+// 				// TODO: 32-bit unicode support
+// 				fwrite(TJS_N("\xff\xfe"), 1, 2, Stream); // indicate unicode text
+// 			}
 
-#ifdef TJS_TEXT_OUT_CRLF
-			ttstr separator(TJS_W("\r\n\r\n\r\n"
-"==============================================================================\r\n"
-"==============================================================================\r\n"
-				));
-#else
-			ttstr separator(TJS_W("\n\n\n"
-"==============================================================================\n"
-"==============================================================================\n"
-				));
-#endif
-			Log(separator);
+// #ifdef TJS_TEXT_OUT_CRLF
+// 			ttstr separator(TJS_W("\r\n\r\n\r\n"
+// "==============================================================================\r\n"
+// "==============================================================================\r\n"
+// 				));
+// #else
+// 			ttstr separator(TJS_W("\n\n\n"
+// "==============================================================================\n"
+// "==============================================================================\n"
+// 				));
+// #endif
+// 			Log(separator);
 
 
-			static tjs_char timebuf[80];
+// 			static tjs_char timebuf[80];
 
-			tm *struct_tm;
-			time_t timer;
-			timer = time(&timer);
+// 			tm *struct_tm;
+// 			time_t timer;
+// 			timer = time(&timer);
 
-			struct_tm = localtime(&timer);
-			TJS_strftime(timebuf, 79, TJS_W("%#c"), struct_tm);
+// 			struct_tm = localtime(&timer);
+// 			TJS_strftime(timebuf, 79, TJS_W("%#c"), struct_tm);
 
-			Log(ttstr(TJS_W("Logging to ")) + ttstr(filename) + TJS_W(" started on ") + timebuf);
+// 			Log(ttstr(TJS_W("Logging to ")) + ttstr(filename) + TJS_W(" started on ") + timebuf);
 
-		}
-	}
-	catch(...)
-	{
-		OpenFailed = true;
-	}
-}
-//---------------------------------------------------------------------------
-void tTVPLogStreamHolder::Clear()
-{
-	// clear log text
-	if(Stream) fclose(Stream);
+// 		}
+// 	}
+// 	catch(...)
+// 	{
+// 		OpenFailed = true;
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// void tTVPLogStreamHolder::Clear()
+// {
+// 	// clear log text
+// 	if(Stream) fclose(Stream);
 
-	Open(TJS_N("wb"));
-}
-//---------------------------------------------------------------------------
-void tTVPLogStreamHolder::Log(const ttstr & text)
-{
-	if(!Stream) Open(TJS_N("ab"));
+// 	Open(TJS_N("wb"));
+// }
+// //---------------------------------------------------------------------------
+// void tTVPLogStreamHolder::Log(const ttstr & text)
+// {
+// 	if(!Stream) Open(TJS_N("ab"));
 
-	try
-	{
-		if(Stream)
-		{
-			size_t len = text.GetLen() * sizeof(tjs_char);
-			if(len != fwrite(text.c_str(), 1, len, Stream))
-			{
-				// cannot write
-				fclose(Stream);
-				OpenFailed = true;
-				return;
-			}
-	#ifdef TJS_TEXT_OUT_CRLF
-			fwrite(TJS_W("\r\n"), 1, 2 * sizeof(tjs_char), Stream);
-	#else
-			fwrite(TJS_W("\n"), 1, 1 * sizeof(tjs_char), Stream);
-	#endif
+// 	try
+// 	{
+// 		if(Stream)
+// 		{
+// 			size_t len = text.GetLen() * sizeof(tjs_char);
+// 			if(len != fwrite(text.c_str(), 1, len, Stream))
+// 			{
+// 				// cannot write
+// 				fclose(Stream);
+// 				OpenFailed = true;
+// 				return;
+// 			}
+// 	#ifdef TJS_TEXT_OUT_CRLF
+// 			fwrite(TJS_W("\r\n"), 1, 2 * sizeof(tjs_char), Stream);
+// 	#else
+// 			fwrite(TJS_W("\n"), 1, 1 * sizeof(tjs_char), Stream);
+// 	#endif
 
-			// flush
-			fflush(Stream);
-		}
-	}
-	catch(...)
-	{
-		try
-		{
-			if(Stream) fclose(Stream);
-		}
-		catch(...)
-		{
-		}
+// 			// flush
+// 			fflush(Stream);
+// 		}
+// 	}
+// 	catch(...)
+// 	{
+// 		try
+// 		{
+// 			if(Stream) fclose(Stream);
+// 		}
+// 		catch(...)
+// 		{
+// 		}
 
-		OpenFailed = true;
-	}
-}
-//---------------------------------------------------------------------------
+// 		OpenFailed = true;
+// 	}
+// }
+// //---------------------------------------------------------------------------
 
 
 
@@ -238,59 +238,59 @@ void tTVPLogStreamHolder::Log(const ttstr & text)
 //---------------------------------------------------------------------------
 void TVPAddLog(const ttstr &line, bool appendtoimportant)
 {
-	// add a line to the log.
-	// exceeded lines over TVPLogMaxLines are eliminated.
-	// this function is not thread-safe ...
+// 	// add a line to the log.
+// 	// exceeded lines over TVPLogMaxLines are eliminated.
+// 	// this function is not thread-safe ...
 
-	TVPEnsureLogObjects();
-	if(!TVPLogDeque) return; // log system is shuttingdown
-	if(!TVPImportantLogs) return; // log system is shuttingdown
+// 	TVPEnsureLogObjects();
+// 	if(!TVPLogDeque) return; // log system is shuttingdown
+// 	if(!TVPImportantLogs) return; // log system is shuttingdown
 
-	static time_t prevlogtime = 0;
-	static ttstr prevtimebuf;
-	static tjs_char timebuf[40];
+// 	static time_t prevlogtime = 0;
+// 	static ttstr prevtimebuf;
+// 	static tjs_char timebuf[40];
 
-	tm *struct_tm;
-	time_t timer;
-	timer = time(&timer);
+// 	tm *struct_tm;
+// 	time_t timer;
+// 	timer = time(&timer);
 
-	if(prevlogtime != timer)
-	{
-		struct_tm = localtime(&timer);
-		TJS_strftime(timebuf, 39, TJS_W("%H:%M:%S"), struct_tm);
-		prevlogtime = timer;
-		prevtimebuf = timebuf;
-	}
+// 	if(prevlogtime != timer)
+// 	{
+// 		struct_tm = localtime(&timer);
+// 		TJS_strftime(timebuf, 39, TJS_W("%H:%M:%S"), struct_tm);
+// 		prevlogtime = timer;
+// 		prevtimebuf = timebuf;
+// 	}
 
-	TVPLogDeque->push_back(tTVPLogItem(line, prevtimebuf));
+// 	TVPLogDeque->push_back(tTVPLogItem(line, prevtimebuf));
 
-	if(appendtoimportant)
-	{
-#ifdef TJS_TEXT_OUT_CRLF
-		*TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\r\n");
-#else
-		*TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\n");
-#endif
-	}
-	while(TVPLogDeque->size() >= TVPLogMaxLines+100)
-	{
-		std::deque<tTVPLogItem>::iterator i = TVPLogDeque->begin();
-		TVPLogDeque->erase(i, i+100);
-	}
+// 	if(appendtoimportant)
+// 	{
+// #ifdef TJS_TEXT_OUT_CRLF
+// 		*TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\r\n");
+// #else
+// 		*TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\n");
+// #endif
+// 	}
+// 	while(TVPLogDeque->size() >= TVPLogMaxLines+100)
+// 	{
+// 		std::deque<tTVPLogItem>::iterator i = TVPLogDeque->begin();
+// 		TVPLogDeque->erase(i, i+100);
+// 	}
 
-	tjs_int timebuflen = TJS_strlen(timebuf);
-	ttstr buf((tTJSStringBufferLength)(timebuflen + 1 + line.GetLen()));
-	tjs_char * p = buf.Independ();
-	TJS_strcpy(p, timebuf);
-	p += timebuflen;
-	*p = TJS_W(' ');
-	p++;
-	TJS_strcpy(p, line.c_str());
-	if(TVPOnLog) TVPOnLog(buf);
-#ifdef ENABLE_DEBUGGER
-	if( TJSEnableDebugMode ) TJSDebuggerLog(buf,appendtoimportant);
-#endif	// ENABLE_DEBUGGER
-	if(TVPLoggingToFile) TVPLogStreamHolder.Log(buf);
+// 	tjs_int timebuflen = TJS_strlen(timebuf);
+// 	ttstr buf((tTJSStringBufferLength)(timebuflen + 1 + line.GetLen()));
+// 	tjs_char * p = buf.Independ();
+// 	TJS_strcpy(p, timebuf);
+// 	p += timebuflen;
+// 	*p = TJS_W(' ');
+// 	p++;
+// 	TJS_strcpy(p, line.c_str());
+// 	if(TVPOnLog) TVPOnLog(buf);
+// #ifdef ENABLE_DEBUGGER
+// 	if( TJSEnableDebugMode ) TJSDebuggerLog(buf,appendtoimportant);
+// #endif	// ENABLE_DEBUGGER
+// 	if(TVPLoggingToFile) TVPLogStreamHolder.Log(buf);
 }
 //---------------------------------------------------------------------------
 void TVPAddLog(const ttstr &line)
@@ -368,108 +368,108 @@ ttstr TVPGetLastLog(tjs_uint n)
 
 
 
-//---------------------------------------------------------------------------
-// TVPStartLogToFile
-//---------------------------------------------------------------------------
-void TVPStartLogToFile(bool clear)
-{
-	TVPEnsureLogObjects();
-	if(!TVPImportantLogs) return; // log system is shuttingdown
+// //---------------------------------------------------------------------------
+// // TVPStartLogToFile
+// //---------------------------------------------------------------------------
+// void TVPStartLogToFile(bool clear)
+// {
+// 	TVPEnsureLogObjects();
+// 	if(!TVPImportantLogs) return; // log system is shuttingdown
 
-	if(TVPLoggingToFile) return; // already logging
-	if(clear) TVPLogStreamHolder.Clear();
+// 	if(TVPLoggingToFile) return; // already logging
+// 	if(clear) TVPLogStreamHolder.Clear();
 
-	// log last lines
+// 	// log last lines
 
-	TVPLogStreamHolder.Log(*TVPImportantLogs);
+// 	TVPLogStreamHolder.Log(*TVPImportantLogs);
 
-#ifdef TJS_TEXT_OUT_CRLF
-	ttstr separator(TJS_W("\r\n"
-"------------------------------------------------------------------------------\r\n"
-				));
-#else
-	ttstr separator(TJS_W("\n"
-"------------------------------------------------------------------------------\n"
-				));
-#endif
+// #ifdef TJS_TEXT_OUT_CRLF
+// 	ttstr separator(TJS_W("\r\n"
+// "------------------------------------------------------------------------------\r\n"
+// 				));
+// #else
+// 	ttstr separator(TJS_W("\n"
+// "------------------------------------------------------------------------------\n"
+// 				));
+// #endif
 
-	TVPLogStreamHolder.Log(separator);
+// 	TVPLogStreamHolder.Log(separator);
 
-	ttstr content = TVPGetLastLog(TVPLogToFileRollBack);
-	TVPLogStreamHolder.Log(content);
+// 	ttstr content = TVPGetLastLog(TVPLogToFileRollBack);
+// 	TVPLogStreamHolder.Log(content);
 
-	//
-	TVPLoggingToFile = true;
-}
-//---------------------------------------------------------------------------
+// 	//
+// 	TVPLoggingToFile = true;
+// }
+// //---------------------------------------------------------------------------
 
 
 
-//---------------------------------------------------------------------------
-// TVPOnError
-//---------------------------------------------------------------------------
-void TVPOnError()
-{
-	if(TVPAutoLogToFileOnError) TVPStartLogToFile(TVPAutoClearLogOnError);
-	TVPOnErrorHook();
-}
-//---------------------------------------------------------------------------
+// //---------------------------------------------------------------------------
+// // TVPOnError
+// //---------------------------------------------------------------------------
+// void TVPOnError()
+// {
+// 	if(TVPAutoLogToFileOnError) TVPStartLogToFile(TVPAutoClearLogOnError);
+// 	// TVPOnErrorHook();
+// }
+// //---------------------------------------------------------------------------
 
 
 
 //---------------------------------------------------------------------------
 // TVPSetLogLocation
 //---------------------------------------------------------------------------
-void TVPSetLogLocation(const ttstr &loc)
-{
-	TVPLogLocation = TVPNormalizeStorageName(loc);
+// void TVPSetLogLocation(const ttstr &loc)
+// {
+// 	TVPLogLocation = TVPNormalizeStorageName(loc);
 
-	ttstr native = TVPGetLocallyAccessibleName(TVPLogLocation);
-	if(native.IsEmpty())
-	{
-		TVPNativeLogLocation[0] = 0;
-		TVPLogLocation.Clear();
-	}
-	else
-	{
-		TJS_nstrcpy(TVPNativeLogLocation, native.AsAnsiString().c_str());
-		if(TVPNativeLogLocation[TJS_nstrlen(TVPNativeLogLocation)-1] != '\\')
-			TJS_nstrcat(TVPNativeLogLocation, "\\");
-	}
+// 	ttstr native = TVPGetLocallyAccessibleName(TVPLogLocation);
+// 	if(native.IsEmpty())
+// 	{
+// 		TVPNativeLogLocation[0] = 0;
+// 		TVPLogLocation.Clear();
+// 	}
+// 	else
+// 	{
+// 		TJS_nstrcpy(TVPNativeLogLocation, native.AsStdString().c_str());
+// 		if(TVPNativeLogLocation[TJS_nstrlen(TVPNativeLogLocation)-1] != '\\')
+// 			TJS_nstrcat(TVPNativeLogLocation, "\\");
+// 	}
 
-	TVPLogStreamHolder.Reopen();
+// 	TVPLogStreamHolder.Reopen();
 
-	// check force logging option
-	tTJSVariant val;
-	if(TVPGetCommandLine(TJS_W("-forcelog"), &val) )
-	{
-		ttstr str(val);
-		if(str == TJS_W("yes"))
-		{
-			TVPLoggingToFile = false;
-			TVPStartLogToFile(false);
-		}
-		else if(str == TJS_W("clear"))
-		{
-			TVPLoggingToFile = false;
-			TVPStartLogToFile(true);
-		}
-	}
-	if(TVPGetCommandLine(TJS_W("-logerror"), &val) )
-	{
-		ttstr str(val);
-		if(str == TJS_W("no"))
-		{
-			TVPAutoClearLogOnError = false;
-			TVPAutoLogToFileOnError = false;
-		}
-		else if(str == TJS_W("clear"))
-		{
-			TVPAutoClearLogOnError = true;
-			TVPAutoLogToFileOnError = true;
-		}
-	}
-}
+// 	// check force logging option
+// 	tTJSVariant val;
+// 	if(TVPGetCommandLine(TJS_W("-forcelog"), &val) )
+// 	{
+// 		ttstr str(val);
+// 		if(str == TJS_W("yes"))
+// 		{
+// 			TVPLoggingToFile = false;
+// 			TVPStartLogToFile(false);
+// 		}
+// 		else if(str == TJS_W("clear"))
+// 		{
+// 			TVPLoggingToFile = false;
+// 			TVPStartLogToFile(true);
+// 		}
+// 	}
+// 	if(TVPGetCommandLine(TJS_W("-logerror"), &val) )
+// 	{
+// 		ttstr str(val);
+// 		if(str == TJS_W("no"))
+// 		{
+// 			TVPAutoClearLogOnError = false;
+// 			TVPAutoLogToFileOnError = false;
+// 		}
+// 		else if(str == TJS_W("clear"))
+// 		{
+// 			TVPAutoClearLogOnError = true;
+// 			TVPAutoLogToFileOnError = true;
+// 		}
+// 	}
+// }
 //---------------------------------------------------------------------------
 
 
@@ -477,158 +477,158 @@ void TVPSetLogLocation(const ttstr &loc)
 //---------------------------------------------------------------------------
 // tTJSNC_Debug
 //---------------------------------------------------------------------------
-tjs_uint32 tTJSNC_Debug::ClassID = -1;
-tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug"))
-{
-	TJS_BEGIN_NATIVE_MEMBERS(Debug)
-	TJS_DECL_EMPTY_FINALIZE_METHOD
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/Debug)
-{
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/Debug)
-//----------------------------------------------------------------------
+// tjs_uint32 tTJSNC_Debug::ClassID = -1;
+// tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug"))
+// {
+// 	TJS_BEGIN_NATIVE_MEMBERS(Debug)
+// 	TJS_DECL_EMPTY_FINALIZE_METHOD
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/Debug)
+// {
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/Debug)
+// //----------------------------------------------------------------------
 
-//-- methods
+// //-- methods
 
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/message)
-{
-	if(numparams<1) return TJS_E_BADPARAMCOUNT;
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/message)
+// {
+// 	if(numparams<1) return TJS_E_BADPARAMCOUNT;
 
-	if(numparams == 1)
-	{
-		TVPAddLog(*param[0]);
-	}
-	else
-	{
-		// display the arguments separated with ", "
-		ttstr args;
-		for(int i = 0; i<numparams; i++)
-		{
-			if(i != 0) args += TJS_W(", ");
-			args += ttstr(*param[i]);
-		}
-		TVPAddLog(args);
-	}
+// 	if(numparams == 1)
+// 	{
+// 		TVPAddLog(*param[0]);
+// 	}
+// 	else
+// 	{
+// 		// display the arguments separated with ", "
+// 		ttstr args;
+// 		for(int i = 0; i<numparams; i++)
+// 		{
+// 			if(i != 0) args += TJS_W(", ");
+// 			args += ttstr(*param[i]);
+// 		}
+// 		TVPAddLog(args);
+// 	}
 
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/message)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/notice)
-{
-	if(numparams<1) return TJS_E_BADPARAMCOUNT;
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/message)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/notice)
+// {
+// 	if(numparams<1) return TJS_E_BADPARAMCOUNT;
 
-	if(numparams == 1)
-	{
-		TVPAddImportantLog(*param[0]);
-	}
-	else
-	{
-		// display the arguments separated with ", "
-		ttstr args;
-		for(int i = 0; i<numparams; i++)
-		{
-			if(i != 0) args += TJS_W(", ");
-			args += ttstr(*param[i]);
-		}
-		TVPAddImportantLog(args);
-	}
+// 	if(numparams == 1)
+// 	{
+// 		TVPAddImportantLog(*param[0]);
+// 	}
+// 	else
+// 	{
+// 		// display the arguments separated with ", "
+// 		ttstr args;
+// 		for(int i = 0; i<numparams; i++)
+// 		{
+// 			if(i != 0) args += TJS_W(", ");
+// 			args += ttstr(*param[i]);
+// 		}
+// 		TVPAddImportantLog(args);
+// 	}
 
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/notice)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/startLogToFile)
-{
-	bool clear = false;
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/notice)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/startLogToFile)
+// {
+// 	bool clear = false;
 
-	if(numparams >= 1)
-		clear = *param[0];
+// 	if(numparams >= 1)
+// 		clear = *param[0];
 
-	TVPStartLogToFile(clear);
+// 	TVPStartLogToFile(clear);
 
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/startLogToFile)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/logAsError)
-{
-	TVPOnError();
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/startLogToFile)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/logAsError)
+// {
+// 	TVPOnError();
 
-	return TJS_S_OK;
-}
-TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/logAsError)
-//----------------------------------------------------------------------
+// 	return TJS_S_OK;
+// }
+// TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/logAsError)
+// //----------------------------------------------------------------------
 
-//-- properies
+// //-- properies
 
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(logLocation)
-{
-	TJS_BEGIN_NATIVE_PROP_GETTER
-	{
-		*result = TVPLogLocation;
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_GETTER
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_PROP_DECL(logLocation)
+// {
+// 	TJS_BEGIN_NATIVE_PROP_GETTER
+// 	{
+// 		*result = TVPLogLocation;
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_GETTER
 
-	TJS_BEGIN_NATIVE_PROP_SETTER
-	{
-		TVPSetLogLocation(*param);
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_SETTER
-}
-TJS_END_NATIVE_STATIC_PROP_DECL(logLocation)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(logToFileOnError)
-{
-	TJS_BEGIN_NATIVE_PROP_GETTER
-	{
-		*result = TVPAutoLogToFileOnError;
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_GETTER
+// 	TJS_BEGIN_NATIVE_PROP_SETTER
+// 	{
+// 		TVPSetLogLocation(*param);
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_SETTER
+// }
+// TJS_END_NATIVE_STATIC_PROP_DECL(logLocation)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_PROP_DECL(logToFileOnError)
+// {
+// 	TJS_BEGIN_NATIVE_PROP_GETTER
+// 	{
+// 		*result = TVPAutoLogToFileOnError;
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_GETTER
 
-	TJS_BEGIN_NATIVE_PROP_SETTER
-	{
-		TVPAutoLogToFileOnError = param->operator bool();
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_SETTER
-}
-TJS_END_NATIVE_STATIC_PROP_DECL(logToFileOnError)
-//----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(clearLogFileOnError)
-{
-	TJS_BEGIN_NATIVE_PROP_GETTER
-	{
-		*result = TVPAutoClearLogOnError;
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_GETTER
+// 	TJS_BEGIN_NATIVE_PROP_SETTER
+// 	{
+// 		TVPAutoLogToFileOnError = param->operator bool();
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_SETTER
+// }
+// TJS_END_NATIVE_STATIC_PROP_DECL(logToFileOnError)
+// //----------------------------------------------------------------------
+// TJS_BEGIN_NATIVE_PROP_DECL(clearLogFileOnError)
+// {
+// 	TJS_BEGIN_NATIVE_PROP_GETTER
+// 	{
+// 		*result = TVPAutoClearLogOnError;
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_GETTER
 
-	TJS_BEGIN_NATIVE_PROP_SETTER
-	{
-		TVPAutoClearLogOnError = param->operator bool();
-		return TJS_S_OK;
-	}
-	TJS_END_NATIVE_PROP_SETTER
-}
-TJS_END_NATIVE_STATIC_PROP_DECL(clearLogFileOnError)
-//----------------------------------------------------------------------
+// 	TJS_BEGIN_NATIVE_PROP_SETTER
+// 	{
+// 		TVPAutoClearLogOnError = param->operator bool();
+// 		return TJS_S_OK;
+// 	}
+// 	TJS_END_NATIVE_PROP_SETTER
+// }
+// TJS_END_NATIVE_STATIC_PROP_DECL(clearLogFileOnError)
+// //----------------------------------------------------------------------
 
-//----------------------------------------------------------------------
-	TJS_END_NATIVE_MEMBERS
+// //----------------------------------------------------------------------
+// 	TJS_END_NATIVE_MEMBERS
 
-	// put version information to DMS
-	TVPAddImportantLog(TVPGetVersionInformation());
-	TVPAddImportantLog(ttstr(TVPVersionInformation2));
-} // end of tTJSNC_Debug::tTJSNC_Debug
-//---------------------------------------------------------------------------
+// 	// put version information to DMS
+// 	TVPAddImportantLog(TVPGetVersionInformation());
+// 	TVPAddImportantLog(ttstr(TVPVersionInformation2));
+// } // end of tTJSNC_Debug::tTJSNC_Debug
+// //---------------------------------------------------------------------------
 
 
 
@@ -680,7 +680,7 @@ class tTVPTJS2DumpOutputGateway : public iTJSConsoleOutput
 void TVPTJS2StartDump()
 {
 	tjs_nchar filename[MAX_PATH];
-	TJS_nstrcpy(filename, _argv[0]);
+	GetModuleFileNameA(NULL, filename, MAX_PATH);
 	TJS_nstrcat(filename, TJS_N(".dump.txt"));
 	TVPDumpOutFileName = filename;
 	TVPDumpOutFile = fopen(filename, TJS_N("wb+"));

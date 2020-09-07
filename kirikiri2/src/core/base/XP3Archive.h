@@ -40,7 +40,7 @@ struct tTVPXP3ExtractionFilterInfo
 
 #ifndef TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
 	#ifdef _WIN32
-		#define	TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION _stdcall
+		#define	TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION __stdcall
 	#else
 		#define TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
 	#endif
@@ -187,6 +187,7 @@ public:
 
 
 
+void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, bool allowextractprotected, void* filter);
 
 
 #endif

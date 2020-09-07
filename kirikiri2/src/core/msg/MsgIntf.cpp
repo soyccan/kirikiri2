@@ -152,77 +152,77 @@ tjs_int TVPVersionBuild;
 
 
 
-//---------------------------------------------------------------------------
-// version information related functions
-//---------------------------------------------------------------------------
-ttstr TVPGetAboutString(void)
-{
-	TVPGetVersion();
-	tjs_char verstr[100];
-	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
-		TVPVersionMajor, TVPVersionMinor,
-		TVPVersionRelease, TVPVersionBuild);
+// //---------------------------------------------------------------------------
+// // version information related functions
+// //---------------------------------------------------------------------------
+// ttstr TVPGetAboutString(void)
+// {
+// 	TVPGetVersion();
+// 	tjs_char verstr[100];
+// 	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
+// 		TVPVersionMajor, TVPVersionMinor,
+// 		TVPVersionRelease, TVPVersionBuild);
 
-	tjs_char tjsverstr[100];
-	TJS_sprintf(tjsverstr, TJS_W("%d.%d.%d"),
-		TJSVersionMajor, TJSVersionMinor, TJSVersionRelease);
+// 	tjs_char tjsverstr[100];
+// 	TJS_sprintf(tjsverstr, TJS_W("%d.%d.%d"),
+// 		TJSVersionMajor, TJSVersionMinor, TJSVersionRelease);
 
-	return TVPFormatMessage(TVPAboutString, verstr, tjsverstr) +
-        TVPGetImportantLog();
-}
-//---------------------------------------------------------------------------
-ttstr TVPGetVersionInformation(void)
-{
-	TVPGetVersion();
-	tjs_char verstr[100];
-	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
-		TVPVersionMajor, TVPVersionMinor,
-		TVPVersionRelease, TVPVersionBuild);
+// 	return TVPFormatMessage(TVPAboutString, verstr, tjsverstr) +
+//         TVPGetImportantLog();
+// }
+// //---------------------------------------------------------------------------
+// ttstr TVPGetVersionInformation(void)
+// {
+// 	TVPGetVersion();
+// 	tjs_char verstr[100];
+// 	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
+// 		TVPVersionMajor, TVPVersionMinor,
+// 		TVPVersionRelease, TVPVersionBuild);
 
-	tjs_char tjsverstr[100];
-	TJS_sprintf(tjsverstr, TJS_W("%d.%d.%d"),
-		TJSVersionMajor, TJSVersionMinor, TJSVersionRelease);
+// 	tjs_char tjsverstr[100];
+// 	TJS_sprintf(tjsverstr, TJS_W("%d.%d.%d"),
+// 		TJSVersionMajor, TJSVersionMinor, TJSVersionRelease);
 
-	return TVPFormatMessage(TVPVersionInformation, verstr, tjsverstr);
-}
-//---------------------------------------------------------------------------
-ttstr TVPGetVersionString()
-{
-	TVPGetVersion();
-	tjs_char verstr[100];
-	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
-		TVPVersionMajor, TVPVersionMinor,
-		TVPVersionRelease, TVPVersionBuild);
-	return ttstr(verstr);
-}
-//---------------------------------------------------------------------------
-
-
+// 	return TVPFormatMessage(TVPVersionInformation, verstr, tjsverstr);
+// }
+// //---------------------------------------------------------------------------
+// ttstr TVPGetVersionString()
+// {
+// 	TVPGetVersion();
+// 	tjs_char verstr[100];
+// 	TJS_sprintf(verstr, TJS_W("%d.%d.%d.%d"),
+// 		TVPVersionMajor, TVPVersionMinor,
+// 		TVPVersionRelease, TVPVersionBuild);
+// 	return ttstr(verstr);
+// }
+// //---------------------------------------------------------------------------
 
 
 
 
-//---------------------------------------------------------------------------
-// Versoin retriving
-//---------------------------------------------------------------------------
-void TVPGetSystemVersion(tjs_int &major, tjs_int &minor,
-	tjs_int &release, tjs_int &build)
-{
-	TVPGetVersion();
-	major = TVPVersionMajor;
-	minor = TVPVersionMinor;
-	release = TVPVersionRelease;
-	build = TVPVersionBuild;
-}
-//---------------------------------------------------------------------------
-void TVPGetTJSVersion(tjs_int &major, tjs_int &minor,
-	tjs_int &release)
-{
-	major = TJSVersionMajor;
-	minor = TJSVersionMinor;
-	release = TJSVersionRelease;
-}
-//---------------------------------------------------------------------------
+
+
+// //---------------------------------------------------------------------------
+// // Versoin retriving
+// //---------------------------------------------------------------------------
+// void TVPGetSystemVersion(tjs_int &major, tjs_int &minor,
+// 	tjs_int &release, tjs_int &build)
+// {
+// 	TVPGetVersion();
+// 	major = TVPVersionMajor;
+// 	minor = TVPVersionMinor;
+// 	release = TVPVersionRelease;
+// 	build = TVPVersionBuild;
+// }
+// //---------------------------------------------------------------------------
+// void TVPGetTJSVersion(tjs_int &major, tjs_int &minor,
+// 	tjs_int &release)
+// {
+// 	major = TJSVersionMajor;
+// 	minor = TJSVersionMinor;
+// 	release = TJSVersionRelease;
+// }
+// //---------------------------------------------------------------------------
 
 
 

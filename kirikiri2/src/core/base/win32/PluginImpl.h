@@ -157,7 +157,7 @@ TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const char * module_filename, tjs_i
 
 //---------------------------------------------------------------------------
 extern bool TVPPluginUnloadedAtSystemExit;
-extern void TVPLoadPluigins(void);
+extern void TVPLoadPlugins(void);
 //---------------------------------------------------------------------------
 
 

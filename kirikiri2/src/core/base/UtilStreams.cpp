@@ -13,7 +13,7 @@
 #include "UtilStreams.h"
 #include "MsgIntf.h"
 #include "DebugIntf.h"
-#include "EventIntf.h"
+// #include "EventIntf.h"
 #include "StorageIntf.h"
 
 
@@ -21,69 +21,69 @@
 
 
 
-//---------------------------------------------------------------------------
-// tTVPLocalTempStorageHolder
-//---------------------------------------------------------------------------
-#define TVP_LOCAL_TEMP_COPY_BLOCK_SIZE 65536*2
-tTVPLocalTempStorageHolder::tTVPLocalTempStorageHolder(const ttstr & name)
-{
-	// name must be normalized !!!
+// //---------------------------------------------------------------------------
+// // tTVPLocalTempStorageHolder
+// //---------------------------------------------------------------------------
+// #define TVP_LOCAL_TEMP_COPY_BLOCK_SIZE 65536*2
+// tTVPLocalTempStorageHolder::tTVPLocalTempStorageHolder(const ttstr & name)
+// {
+// 	// name must be normalized !!!
 
-	FileMustBeDeleted = false;
-	FolderMustBeDeleted = false;
-	LocalName = TVPGetLocallyAccessibleName(name);
-	if(LocalName.IsEmpty())
-	{
-		// file must be copied to local filesystem
+// 	FileMustBeDeleted = false;
+// 	FolderMustBeDeleted = false;
+// 	LocalName = TVPGetLocallyAccessibleName(name);
+// 	if(LocalName.IsEmpty())
+// 	{
+// 		// file must be copied to local filesystem
 
-		// note that the basename is much more important than the directory
-		// which the file is to be in, so we create a temporary folder and
-		// store the file in it.
+// 		// note that the basename is much more important than the directory
+// 		// which the file is to be in, so we create a temporary folder and
+// 		// store the file in it.
 
-		LocalFolder = TVPGetTemporaryName();
-		LocalName = LocalFolder + TJS_W("/") + TVPExtractStorageName(name);
-		TVPCreateFolders(LocalFolder); // create temporary folder
-		FolderMustBeDeleted = true;
-		FileMustBeDeleted = true;
+// 		LocalFolder = TVPGetTemporaryName();
+// 		LocalName = LocalFolder + TJS_W("/") + TVPExtractStorageName(name);
+// 		TVPCreateFolders(LocalFolder); // create temporary folder
+// 		FolderMustBeDeleted = true;
+// 		FileMustBeDeleted = true;
 
-		try
-		{
-			// copy to local file
-			tTVPStreamHolder src(name);
-			tTVPStreamHolder dest(LocalName, TJS_BS_WRITE);
-			tjs_uint8 * buffer = new tjs_uint8[TVP_LOCAL_TEMP_COPY_BLOCK_SIZE];
-			try
-			{
-				tjs_uint read;
-				while(true)
-				{
-					read = src->Read(buffer, TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
-					if(read == 0) break;
-					dest->WriteBuffer(buffer, read);
-				}
-			}
-			catch(...)
-			{
-				delete [] buffer;
-				throw;
-			}
-			delete [] buffer;
-		}
-		catch(...)
-		{
-			if(FileMustBeDeleted) TVPRemoveFile(LocalName);
-			if(FolderMustBeDeleted) TVPRemoveFolder(LocalFolder);
-			throw;
-		}
-	}
-}
-//---------------------------------------------------------------------------
-tTVPLocalTempStorageHolder::~tTVPLocalTempStorageHolder()
-{
-	if(FileMustBeDeleted) TVPRemoveFile(LocalName);
-	if(FolderMustBeDeleted) TVPRemoveFolder(LocalFolder);
-}
-//---------------------------------------------------------------------------
+// 		try
+// 		{
+// 			// copy to local file
+// 			tTVPStreamHolder src(name);
+// 			tTVPStreamHolder dest(LocalName, TJS_BS_WRITE);
+// 			tjs_uint8 * buffer = new tjs_uint8[TVP_LOCAL_TEMP_COPY_BLOCK_SIZE];
+// 			try
+// 			{
+// 				tjs_uint read;
+// 				while(true)
+// 				{
+// 					read = src->Read(buffer, TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
+// 					if(read == 0) break;
+// 					dest->WriteBuffer(buffer, read);
+// 				}
+// 			}
+// 			catch(...)
+// 			{
+// 				delete [] buffer;
+// 				throw;
+// 			}
+// 			delete [] buffer;
+// 		}
+// 		catch(...)
+// 		{
+// 			if(FileMustBeDeleted) TVPRemoveFile(LocalName);
+// 			if(FolderMustBeDeleted) TVPRemoveFolder(LocalFolder);
+// 			throw;
+// 		}
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// tTVPLocalTempStorageHolder::~tTVPLocalTempStorageHolder()
+// {
+// 	if(FileMustBeDeleted) TVPRemoveFile(LocalName);
+// 	if(FolderMustBeDeleted) TVPRemoveFolder(LocalFolder);
+// }
+// //---------------------------------------------------------------------------
 
 
 
@@ -276,95 +276,95 @@ void tTVPMemoryStream::Free(void *block)
 
 
 
-//---------------------------------------------------------------------------
-// tTVPPartialStream
-//---------------------------------------------------------------------------
-tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
-	tjs_uint64 size)
-{
-	// the stream given as a argument here will be owned by this instance,
-	// and freed at the destruction.
+// //---------------------------------------------------------------------------
+// // tTVPPartialStream
+// //---------------------------------------------------------------------------
+// tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
+// 	tjs_uint64 size)
+// {
+// 	// the stream given as a argument here will be owned by this instance,
+// 	// and freed at the destruction.
 
-	Stream = stream;
-	Start = start;
-	Size = size;
-	CurrentPos = 0;
+// 	Stream = stream;
+// 	Start = start;
+// 	Size = size;
+// 	CurrentPos = 0;
 
-	try
-	{
-		Stream->SetPosition(Start);
-	}
-	catch(...)
-	{
-		delete Stream;
-		Stream = NULL;
-		throw;
-	}
-}
-//---------------------------------------------------------------------------
-tTVPPartialStream::~tTVPPartialStream()
-{
-	if(Stream) delete Stream;
-}
-//---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::Seek(tjs_int64 offset, tjs_int whence)
-{
-	tjs_int64 newpos;
-	switch(whence)
-	{
-	case TJS_BS_SEEK_SET:
-		newpos = offset;
-		if(offset >= 0 && offset <= Size)
-		{
-			newpos += Start;
-			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-		}
-		return CurrentPos;
+// 	try
+// 	{
+// 		Stream->SetPosition(Start);
+// 	}
+// 	catch(...)
+// 	{
+// 		delete Stream;
+// 		Stream = NULL;
+// 		throw;
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// tTVPPartialStream::~tTVPPartialStream()
+// {
+// 	if(Stream) delete Stream;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::Seek(tjs_int64 offset, tjs_int whence)
+// {
+// 	tjs_int64 newpos;
+// 	switch(whence)
+// 	{
+// 	case TJS_BS_SEEK_SET:
+// 		newpos = offset;
+// 		if(offset >= 0 && offset <= Size)
+// 		{
+// 			newpos += Start;
+// 			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+// 		}
+// 		return CurrentPos;
 
-	case TJS_BS_SEEK_CUR:
-		newpos = offset + CurrentPos;
-		if(offset >= 0 && offset <= Size)
-		{
-			newpos += Start;
-			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-		}
-		return CurrentPos;
+// 	case TJS_BS_SEEK_CUR:
+// 		newpos = offset + CurrentPos;
+// 		if(offset >= 0 && offset <= Size)
+// 		{
+// 			newpos += Start;
+// 			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+// 		}
+// 		return CurrentPos;
 
-	case TJS_BS_SEEK_END:
-		newpos = offset + Size;
-		if(offset >= 0 && offset <= Size)
-		{
-			newpos += Start;
-			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-		}
-		return CurrentPos;
-	}
-	return CurrentPos;
-}
-//---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPPartialStream::Read(void *buffer, tjs_uint read_size)
-{
-	if(CurrentPos + read_size >= Size)
-	{
-		read_size = Size - CurrentPos;
-	}
+// 	case TJS_BS_SEEK_END:
+// 		newpos = offset + Size;
+// 		if(offset >= 0 && offset <= Size)
+// 		{
+// 			newpos += Start;
+// 			CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+// 		}
+// 		return CurrentPos;
+// 	}
+// 	return CurrentPos;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint TJS_INTF_METHOD tTVPPartialStream::Read(void *buffer, tjs_uint read_size)
+// {
+// 	if(CurrentPos + read_size >= Size)
+// 	{
+// 		read_size = Size - CurrentPos;
+// 	}
 
-	tjs_uint read = Stream->Read(buffer, read_size);
+// 	tjs_uint read = Stream->Read(buffer, read_size);
 
-	CurrentPos += read;
+// 	CurrentPos += read;
 
-	return read;
-}
-//---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPPartialStream::Write(const void *buffer, tjs_uint write_size)
-{
-	return 0;
-}
-//---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::GetSize()
-{
-	return Size;
-}
-//---------------------------------------------------------------------------
+// 	return read;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint TJS_INTF_METHOD tTVPPartialStream::Write(const void *buffer, tjs_uint write_size)
+// {
+// 	return 0;
+// }
+// //---------------------------------------------------------------------------
+// tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::GetSize()
+// {
+// 	return Size;
+// }
+// //---------------------------------------------------------------------------
 
 

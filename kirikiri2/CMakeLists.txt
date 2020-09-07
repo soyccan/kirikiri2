@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-# Run make in subdir
+# Run make in subdir:
 # add_custom_target(
 #    extern_lib
 #    COMMAND make
@@ -37,29 +37,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 # path to store executables
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ".")
+
 
 # options for executable:
 #   target_include_directories
 #   target_link_libraries
 #   target_compile_definitions
 #   target_compile_options
-
-
-# set(TARGET krkr.exe)
-# add_executable("${TARGET}" "src/core/environ/win32/tvpwin32.cpp")
-# target_include_directories("${TARGET}" PUBLIC "src/core/base")
-# target_include_directories("${TARGET}" PUBLIC "src/core/base/win32")
-# target_include_directories("${TARGET}" PUBLIC "src/core/environ")
-# target_include_directories("${TARGET}" PUBLIC "src/core/msg")
-# target_include_directories("${TARGET}" PUBLIC "src/core/msg/win32")
-# target_include_directories("${TARGET}" PUBLIC "src/core/sound")
-# target_include_directories("${TARGET}" PUBLIC "src/core/tjs2")
-# target_include_directories("${TARGET}" PUBLIC "src/core/utils")
-# target_include_directories("${TARGET}" PUBLIC "src/core/visual")
-# target_include_directories("${TARGET}" PUBLIC "src/bcbfake")
-# target_compile_definitions("${TARGET}" PUBLIC "__WIN32__")
-
 
 
 set(TARGET hack)
@@ -103,26 +88,37 @@ add_executable("${TARGET}"
     "src/core/tjs2/tjsByteCodeLoader.cpp"
     "src/core/tjs2/tjsBinarySerializer.cpp"
 
-    # "src/core/base/XP3Archive.cpp"
+    "src/core/base/XP3Archive.cpp"
+    "src/core/base/win32/SusieArchive.cpp"
+    # "src/core/visual/GraphicsLoaderIntf.cpp"
+    "src/core/visual/win32/GraphicsLoaderImpl.cpp"
+    # "src/core/visual/LoadTLG.cpp"
     # "src/core/base/TextStream.cpp"
-    # "src/core/base/UtilStreams.cpp"
+    "src/core/base/UtilStreams.cpp"
 
-    # "src/core/utils/DebugIntf.cpp"
+    "src/core/utils/DebugIntf.cpp"
     # "src/core/utils/win32/DebugImpl.cpp"
-    # "src/core/msg/MsgIntf.cpp"
+    "src/core/msg/MsgIntf.cpp"
     # "src/core/msg/win32/MsgImpl.cpp"
-    # "src/core/base/StorageIntf.cpp"
-    # "src/core/base/win32/StorageImpl.cpp"
+    "src/core/base/StorageIntf.cpp"
+    "src/core/base/win32/StorageImpl.cpp"
+    "src/core/utils/win32/TickCount.cpp"
+    "src/core/utils/ThreadIntf.cpp"
+    "src/core/utils/win32/ThreadImpl.cpp"
+    # "src/core/base/PluginIntf.cpp"
+    # "src/core/base/win32/PluginImpl.cpp"
+    # "src/core/base/win32/FuncStubs.cpp"
     # "src/core/base/SysInitIntf.cpp"
     # "src/core/base/win32/SysInitImpl.cpp"
+
+    "src/core/utils/Random.cpp"
+    "src/core/utils/md5.c"
 
     # "src/core/base/win32/ScriptMgnImpl.cpp"
     # "src/core/base/EventIntf.cpp"
     # "src/core/base/win32/EventImpl.cpp"
     # "src/core/base/SystemIntf.cpp"
     # "src/core/base/win32/SystemImpl.cpp"
-    # "src/core/base/PluginIntf.cpp"
-    # "src/core/base/win32/PluginImpl.cpp"
 
     # "src/core/environ/win32/WideNativeFuncs.cpp"
     # "src/core/environ/win32/DetectCPU.cpp"
@@ -136,8 +132,6 @@ add_executable("${TARGET}"
     # "src/core/visual/win32/DInputMgn.cpp"
     # "src/core/visual/WindowIntf.cpp"
     # "src/core/visual/win32/WindowImpl.cpp"
-    # "src/core/visual/GraphicsLoaderIntf.cpp"
-    # "src/core/visual/LoadTLG.cpp"
     # "src/core/visual/win32/GraphicsLoaderImpl.cpp"
     # "src/core/visual/MenuItemIntf.cpp"
     # "src/core/visual/win32/MenuItemImpl.cpp"
@@ -155,16 +149,10 @@ add_executable("${TARGET}"
     # "src/core/utils/win32/PadImpl.cpp"
     # "src/core/utils/TimerIntf.cpp"
     # "src/core/utils/win32/TimerImpl.cpp"
-    # "src/core/utils/win32/TickCount.cpp"
     # "src/core/utils/KAGParser.cpp"
-    # "src/core/utils/Random.cpp"
-    # "src/core/utils/md5.c"
-    # "src/core/utils/ThreadIntf.cpp"
-    # "src/core/utils/win32/ThreadImpl.cpp"
     # "src/core/utils/ClipboardIntf.cpp"
     # "src/core/utils/win32/ClipboardImpl.cpp"
     # "src/core/base/win32/FileSelector.cpp"
-    # "src/core/base/win32/SusieArchive.cpp"
     # "src/core/sound/SoundBufferBaseIntf.cpp"
     # "src/core/sound/win32/SoundBufferBaseImpl.cpp"
     # "src/core/sound/CDDAIntf.cpp"
@@ -180,7 +168,6 @@ add_executable("${TARGET}"
     # "src/core/sound/WaveSegmentQueue.cpp"
     # "src/core/utils/win32/TLogViewer.cpp"
     # "src/core/base/ScriptMgnIntf.cpp"
-    # "src/core/base/win32/FuncStubs.cpp"
     # "src/core/msg/win32/OptionsDesc.cpp"
     # "src/tools/win32/krdevui/ConfSettingsUnit.cpp"
     # "src/core/base/CharacterSet.cpp"
@@ -222,9 +209,46 @@ target_include_directories("${TARGET}" PUBLIC "src/plugins/win32")
 target_include_directories("${TARGET}" PUBLIC "src/hack")
 # target_include_directories("${TARGET}" PUBLIC "src/core/environ/win32/bcb2007/include")
 
-# target_link_directories("${TARGET}" PUBLIC "src/core/environ/win32/bcb2007/lib")
-# target_link_libraries("${TARGET}" PUBLIC "boost_regex_bcb6_mss")
-
 target_compile_definitions("${TARGET}" PUBLIC "__WIN32__")
 target_compile_definitions("${TARGET}" PUBLIC "_WIN32")
 target_compile_definitions("${TARGET}" PUBLIC "TJS_NO_REGEXP")
+
+# target_link_directories("${TARGET}" PUBLIC "src/core/environ/win32/bcb2007/lib")
+# target_link_libraries("${TARGET}" PUBLIC "boost_regex_bcb6_mss")
+
+target_link_libraries("${TARGET}" PUBLIC "winmm")
+
+target_link_directories("${TARGET}" PUBLIC "src/plugins/win32/zlib/Debug")
+target_link_libraries("${TARGET}" PUBLIC "zlib")
+
+target_link_options("${TARGET}" PUBLIC /dynamicbase:no)
+
+add_dependencies("${TARGET}" zlib)
+
+
+
+
+set(TARGET zlib)
+add_library("${TARGET}"
+    src/plugins/win32/zlib/adler32.c
+    src/plugins/win32/zlib/compress.c
+    src/plugins/win32/zlib/crc32.c
+    src/plugins/win32/zlib/deflate.c
+    src/plugins/win32/zlib/gzclose.c
+    src/plugins/win32/zlib/gzlib.c
+    src/plugins/win32/zlib/gzread.c
+    src/plugins/win32/zlib/gzwrite.c
+    src/plugins/win32/zlib/infback.c
+    src/plugins/win32/zlib/inffast.c
+    src/plugins/win32/zlib/inflate.c
+    src/plugins/win32/zlib/inftrees.c
+    src/plugins/win32/zlib/trees.c
+    src/plugins/win32/zlib/uncompr.c
+    src/plugins/win32/zlib/zutil.c
+)
+target_compile_definitions("${TARGET}" PUBLIC
+    _CRT_SECURE_NO_DEPRECATE
+    _CRT_NONSTDC_NO_DEPRECATE
+    WIN32
+    _LIB
+)

@@ -69,6 +69,7 @@ public:
 	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (tTJSVariantString *vstr))   { Ptr = vstr; if(Ptr) Ptr->AddRef(); }
 	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (const tjs_char *str)) { Ptr = TJSAllocVariantString(str); }
 	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (const tjs_nchar *str)) { Ptr = TJSAllocVariantString(str); }
+	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (const std::string &str)) { Ptr = TJSAllocVariantString(str.c_str()); }
 	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (const tTJSStringBufferLength len))
 		{ Ptr = TJSAllocVariantStringBuffer(len.n); }
 	TJS_METHOD_DEF(TJS_METHOD_RET_EMPTY, tTJSString, (tjs_char rch))

@@ -11,13 +11,15 @@
 #ifndef SysInitImplH
 #define SysInitImplH
 
+#include <string>
+
 //---------------------------------------------------------------------------
 extern void TVPDumpHWException();
 
 extern void TVPInitializeBaseSystems();
 
-extern AnsiString TVPNativeProjectDir;
-extern AnsiString TVPNativeDataPath;
+extern std::string TVPNativeProjectDir;
+extern std::string TVPNativeDataPath;
 
 extern bool TVPProjectDirSelected;
 extern bool TVPSystemIsBasedOnNT;

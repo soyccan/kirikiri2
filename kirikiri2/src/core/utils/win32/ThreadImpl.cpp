@@ -11,6 +11,7 @@
 #include "tjsCommHead.h"
 
 #include <process.h>
+#include <algorithm>
 
 #include "ThreadIntf.h"
 #include "ThreadImpl.h"
@@ -174,7 +175,8 @@ tjs_int TVPGetProcessorNum(void)
 tjs_int TVPGetThreadNum(void)
 {
   tjs_int threadNum = TVPDrawThreadNum ? TVPDrawThreadNum : GetProcesserNum();
-  threadNum = std::min(threadNum, TVPMaxThreadNum);
+  threadNum = (std::min)(threadNum, TVPMaxThreadNum); // windows.h sucks!
+                                                      // #define NOMINMAX to prevent pollusion
   return threadNum;
 }
 

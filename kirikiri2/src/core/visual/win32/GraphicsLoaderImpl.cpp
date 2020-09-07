@@ -16,7 +16,7 @@
 #include "StorageImpl.h"
 #include "MsgIntf.h"
 #include "tjsUtils.h"
-#include "SysInitIntf.h"
+// #include "SysInitIntf.h"
 #include "DebugIntf.h"
 
 /*
@@ -110,215 +110,215 @@ tTVPSusiePlugin::~tTVPSusiePlugin()
 
 
 
-//---------------------------------------------------------------------------
-// tTVPSusiePicturePlugin
-//---------------------------------------------------------------------------
-class tTVPSusiePicturePlugin : public tTVPSusiePlugin
-{
-	tTVPBMPAlphaType AlphaType;
-public:
-	tTVPSusiePicturePlugin(HINSTANCE inst, tTVPBMPAlphaType alphatype);
-	~tTVPSusiePicturePlugin();
+// //---------------------------------------------------------------------------
+// // tTVPSusiePicturePlugin
+// //---------------------------------------------------------------------------
+// class tTVPSusiePicturePlugin : public tTVPSusiePlugin
+// {
+// 	tTVPBMPAlphaType AlphaType;
+// public:
+// 	tTVPSusiePicturePlugin(HINSTANCE inst, tTVPBMPAlphaType alphatype);
+// 	~tTVPSusiePicturePlugin();
 
-	tTVPBMPAlphaType GetAlphaType() const { return AlphaType; }
+// 	tTVPBMPAlphaType GetAlphaType() const { return AlphaType; }
 
-	void Load(void *callbackdata,
-		tTVPGraphicSizeCallback sizecallback,
-		tTVPGraphicScanLineCallback scanlinecallback,
-		tTJSBinaryStream *src,
-		tjs_int keyidx,
-		tTVPGraphicLoadMode mode);
+// 	void Load(void *callbackdata,
+// 		tTVPGraphicSizeCallback sizecallback,
+// 		tTVPGraphicScanLineCallback scanlinecallback,
+// 		tTJSBinaryStream *src,
+// 		tjs_int keyidx,
+// 		tTVPGraphicLoadMode mode);
 
-};
-//---------------------------------------------------------------------------
-tTVPSusiePicturePlugin::tTVPSusiePicturePlugin(HINSTANCE inst,
-	tTVPBMPAlphaType alphatype) : tTVPSusiePlugin(inst, "00IN")
-{
-	// member setup
-	AlphaType = alphatype;
-}
-//---------------------------------------------------------------------------
-tTVPSusiePicturePlugin::~tTVPSusiePicturePlugin()
-{
-}
-//---------------------------------------------------------------------------
-void tTVPSusiePicturePlugin::Load(void *callbackdata,
-		tTVPGraphicSizeCallback sizecallback,
-		tTVPGraphicScanLineCallback scanlinecallback,
-		tTJSBinaryStream *src,
-		tjs_int keyidx,
-		tTVPGraphicLoadMode mode)
-{
-	bool bitmaplocked = false;
-	HLOCAL bitmap = NULL;
-	bool infolocked = false;
-	HLOCAL info = NULL;
+// };
+// //---------------------------------------------------------------------------
+// tTVPSusiePicturePlugin::tTVPSusiePicturePlugin(HINSTANCE inst,
+// 	tTVPBMPAlphaType alphatype) : tTVPSusiePlugin(inst, "00IN")
+// {
+// 	// member setup
+// 	AlphaType = alphatype;
+// }
+// //---------------------------------------------------------------------------
+// tTVPSusiePicturePlugin::~tTVPSusiePicturePlugin()
+// {
+// }
+// //---------------------------------------------------------------------------
+// void tTVPSusiePicturePlugin::Load(void *callbackdata,
+// 		tTVPGraphicSizeCallback sizecallback,
+// 		tTVPGraphicScanLineCallback scanlinecallback,
+// 		tTJSBinaryStream *src,
+// 		tjs_int keyidx,
+// 		tTVPGraphicLoadMode mode)
+// {
+// 	bool bitmaplocked = false;
+// 	HLOCAL bitmap = NULL;
+// 	bool infolocked = false;
+// 	HLOCAL info = NULL;
 
-	// load source to memory
-	tjs_uint64 size = src->GetSize();
-	tjs_uint8 * source = new tjs_uint8[(tjs_int)size];
+// 	// load source to memory
+// 	tjs_uint64 size = src->GetSize();
+// 	tjs_uint8 * source = new tjs_uint8[(tjs_int)size];
 
-	try
-	{
-		src->ReadBuffer(source, size);
+// 	try
+// 	{
+// 		src->ReadBuffer(source, size);
 
-		// call GetPicture
-		int r = GetPicture((LPSTR)source, (long)size, 0x01, &info, &bitmap,
-			(FARPROC)ProgressCallback, 0);
-		if((r&0xff) != 0) TVPThrowExceptionMessage(TVPSusiePluginError, ttstr(r));
+// 		// call GetPicture
+// 		int r = GetPicture((LPSTR)source, (long)size, 0x01, &info, &bitmap,
+// 			(FARPROC)ProgressCallback, 0);
+// 		if((r&0xff) != 0) TVPThrowExceptionMessage(TVPSusiePluginError, ttstr(r));
 
-		// setup bitmapinfoheader
-		TVP_WIN_BITMAPINFOHEADER bi;
-		memset(&bi, 0, sizeof(bi));
-		BITMAPINFOHEADER *srcbi = (BITMAPINFOHEADER *)LocalLock(info);
-		infolocked = true;
-		tjs_int datasize = LocalSize(bitmap);
-		void * data = (void*) LocalLock(bitmap);
-		bitmaplocked = true;
+// 		// setup bitmapinfoheader
+// 		TVP_WIN_BITMAPINFOHEADER bi;
+// 		memset(&bi, 0, sizeof(bi));
+// 		BITMAPINFOHEADER *srcbi = (BITMAPINFOHEADER *)LocalLock(info);
+// 		infolocked = true;
+// 		tjs_int datasize = LocalSize(bitmap);
+// 		void * data = (void*) LocalLock(bitmap);
+// 		bitmaplocked = true;
 
-		if(srcbi->biSize == 12)
-		{
-			// OS/2 bitmap header
-			bi.biSize = srcbi->biSize;
-			bi.biWidth = srcbi->biWidth;
-			bi.biHeight = srcbi->biHeight;
-			bi.biPlanes = srcbi->biPlanes;
-			bi.biBitCount = srcbi->biBitCount;
-			bi.biClrUsed = 0;
-			bi.biCompression = BI_RGB;
-		}
-		else if(srcbi->biSize == 40)
-		{
-			// Windows bitmap header
-			bi.biSize = srcbi->biSize;
-			bi.biWidth = srcbi->biWidth;
-			bi.biHeight = srcbi->biHeight;
-			bi.biPlanes = srcbi->biPlanes;
-			bi.biBitCount = srcbi->biBitCount;
-			bi.biCompression = srcbi->biCompression;
-			bi.biSizeImage = srcbi->biSizeImage;
-			bi.biXPelsPerMeter = srcbi->biXPelsPerMeter;
-			bi.biYPelsPerMeter = srcbi->biYPelsPerMeter;
-			bi.biClrUsed = srcbi->biClrUsed;
-			bi.biClrImportant = srcbi->biClrImportant;
-		}
-		else
-		{
-			// not supported bitmap format
-			TVPThrowExceptionMessage(TVPImageLoadError,
-				TJS_W("Non-supported bitmap header was given from susie plug-in."));
+// 		if(srcbi->biSize == 12)
+// 		{
+// 			// OS/2 bitmap header
+// 			bi.biSize = srcbi->biSize;
+// 			bi.biWidth = srcbi->biWidth;
+// 			bi.biHeight = srcbi->biHeight;
+// 			bi.biPlanes = srcbi->biPlanes;
+// 			bi.biBitCount = srcbi->biBitCount;
+// 			bi.biClrUsed = 0;
+// 			bi.biCompression = BI_RGB;
+// 		}
+// 		else if(srcbi->biSize == 40)
+// 		{
+// 			// Windows bitmap header
+// 			bi.biSize = srcbi->biSize;
+// 			bi.biWidth = srcbi->biWidth;
+// 			bi.biHeight = srcbi->biHeight;
+// 			bi.biPlanes = srcbi->biPlanes;
+// 			bi.biBitCount = srcbi->biBitCount;
+// 			bi.biCompression = srcbi->biCompression;
+// 			bi.biSizeImage = srcbi->biSizeImage;
+// 			bi.biXPelsPerMeter = srcbi->biXPelsPerMeter;
+// 			bi.biYPelsPerMeter = srcbi->biYPelsPerMeter;
+// 			bi.biClrUsed = srcbi->biClrUsed;
+// 			bi.biClrImportant = srcbi->biClrImportant;
+// 		}
+// 		else
+// 		{
+// 			// not supported bitmap format
+// 			TVPThrowExceptionMessage(TVPImageLoadError,
+// 				TJS_W("Non-supported bitmap header was given from susie plug-in."));
 
-		}
+// 		}
 
-		// create reference memory stream for bitmap pixel data
-		tTVPMemoryStream memstream(data, datasize);
+// 		// create reference memory stream for bitmap pixel data
+// 		tTVPMemoryStream memstream(data, datasize);
 
-		if(bi.biClrUsed == 0 && bi.biBitCount <= 8)
-			bi.biClrUsed = 1 << bi.biBitCount;
+// 		if(bi.biClrUsed == 0 && bi.biBitCount <= 8)
+// 			bi.biClrUsed = 1 << bi.biBitCount;
 
-		// pass information to TVPInternalLoadBMP
-		TVPInternalLoadBMP(callbackdata, sizecallback, scanlinecallback,
-			bi, ((tjs_uint8*)srcbi) + bi.biSize, &memstream, keyidx, AlphaType,
-				mode);
+// 		// pass information to TVPInternalLoadBMP
+// 		TVPInternalLoadBMP(callbackdata, sizecallback, scanlinecallback,
+// 			bi, ((tjs_uint8*)srcbi) + bi.biSize, &memstream, keyidx, AlphaType,
+// 				mode);
 
-	}
-	catch(...)
-	{
-		delete [] source;
-		if(bitmaplocked) LocalUnlock(bitmap);
-		if(bitmap) LocalFree(bitmap);
-		if(infolocked) LocalUnlock(info);
-		if(info) LocalFree(info);
-		throw;
-	}
+// 	}
+// 	catch(...)
+// 	{
+// 		delete [] source;
+// 		if(bitmaplocked) LocalUnlock(bitmap);
+// 		if(bitmap) LocalFree(bitmap);
+// 		if(infolocked) LocalUnlock(info);
+// 		if(info) LocalFree(info);
+// 		throw;
+// 	}
 
-	delete [] source;
-	if(bitmaplocked) LocalUnlock(bitmap);
-	if(bitmap) LocalFree(bitmap);
-	if(infolocked) LocalUnlock(info);
-	if(info) LocalFree(info);
-}
-//---------------------------------------------------------------------------
-
-
-
-//---------------------------------------------------------------------------
-// Global/static data
-//---------------------------------------------------------------------------
-typedef tTJSHashTable<HINSTANCE, tTVPSusiePicturePlugin*> tTVPSusiePluginList;
-static tTVPSusiePluginList TVPSusiePluginList;
-
-static void TVPDestroySusiePluginList()
-{
-	tTVPSusiePluginList::tIterator i;
-	for(i = TVPSusiePluginList.GetFirst(); !i.IsNull(); i++)
-	{
-		delete i.GetValue();
-	}
-}
-static tTVPAtExit TVPDestroySusiePluginListAtExit
-	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroySusiePluginList);
-
-//---------------------------------------------------------------------------
+// 	delete [] source;
+// 	if(bitmaplocked) LocalUnlock(bitmap);
+// 	if(bitmap) LocalFree(bitmap);
+// 	if(infolocked) LocalUnlock(info);
+// 	if(info) LocalFree(info);
+// }
+// //---------------------------------------------------------------------------
 
 
 
-//---------------------------------------------------------------------------
-// TVPLoadViaSusiePlugin
-//---------------------------------------------------------------------------
-static void TVPLoadViaSusiePlugin(void* formatdata, void *callbackdata,
-	tTVPGraphicSizeCallback sizecallback,
-	tTVPGraphicScanLineCallback scanlinecallback,
-	tTVPMetaInfoPushCallback metainfopushcallback,
-	tTJSBinaryStream *src,
-	tjs_int keyidx,
-	tTVPGraphicLoadMode mode)
-{
-	tTVPSusiePicturePlugin * plugin = (tTVPSusiePicturePlugin*)formatdata;
-	plugin->Load(callbackdata, sizecallback, scanlinecallback, src, keyidx,
-		mode);
-}
-//---------------------------------------------------------------------------
+// //---------------------------------------------------------------------------
+// // Global/static data
+// //---------------------------------------------------------------------------
+// typedef tTJSHashTable<HINSTANCE, tTVPSusiePicturePlugin*> tTVPSusiePluginList;
+// static tTVPSusiePluginList TVPSusiePluginList;
+
+// static void TVPDestroySusiePluginList()
+// {
+// 	tTVPSusiePluginList::tIterator i;
+// 	for(i = TVPSusiePluginList.GetFirst(); !i.IsNull(); i++)
+// 	{
+// 		delete i.GetValue();
+// 	}
+// }
+// static tTVPAtExit TVPDestroySusiePluginListAtExit
+// 	(TVP_ATEXIT_PRI_CLEANUP, TVPDestroySusiePluginList);
+
+// //---------------------------------------------------------------------------
+
+
+
+// //---------------------------------------------------------------------------
+// // TVPLoadViaSusiePlugin
+// //---------------------------------------------------------------------------
+// static void TVPLoadViaSusiePlugin(void* formatdata, void *callbackdata,
+// 	tTVPGraphicSizeCallback sizecallback,
+// 	tTVPGraphicScanLineCallback scanlinecallback,
+// 	tTVPMetaInfoPushCallback metainfopushcallback,
+// 	tTJSBinaryStream *src,
+// 	tjs_int keyidx,
+// 	tTVPGraphicLoadMode mode)
+// {
+// 	tTVPSusiePicturePlugin * plugin = (tTVPSusiePicturePlugin*)formatdata;
+// 	plugin->Load(callbackdata, sizecallback, scanlinecallback, src, keyidx,
+// 		mode);
+// }
+// //---------------------------------------------------------------------------
 
 
 
 
-//---------------------------------------------------------------------------
-// TVPLoadPictureSPI/TVPUnloadPictureSPI : load/unload spi
-//---------------------------------------------------------------------------
-void TVPLoadPictureSPI(HINSTANCE inst, tTVPBMPAlphaType alphatype)
-{
-	// load specified Picture Susie plug-in.
-	tTVPSusiePicturePlugin *spi = new tTVPSusiePicturePlugin(inst, alphatype);
+// //---------------------------------------------------------------------------
+// // TVPLoadPictureSPI/TVPUnloadPictureSPI : load/unload spi
+// //---------------------------------------------------------------------------
+// void TVPLoadPictureSPI(HINSTANCE inst, tTVPBMPAlphaType alphatype)
+// {
+// 	// load specified Picture Susie plug-in.
+// 	tTVPSusiePicturePlugin *spi = new tTVPSusiePicturePlugin(inst, alphatype);
 
-	TVPSusiePluginList.Add(inst, spi);
+// 	TVPSusiePluginList.Add(inst, spi);
 
-	const std::vector<ttstr> & exts = spi->GetExtensions();
-	std::vector<ttstr>::const_iterator i;
-	for(i = exts.begin(); i != exts.end(); i++)
-	{
-		TVPRegisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, (void*)spi);
-	}
-}
-//---------------------------------------------------------------------------
-void TVPUnloadPictureSPI(HINSTANCE inst)
-{
-	// unload specified Picture Susie plug-in from System.
-	tTVPSusiePicturePlugin** p = TVPSusiePluginList.Find(inst);
+// 	const std::vector<ttstr> & exts = spi->GetExtensions();
+// 	std::vector<ttstr>::const_iterator i;
+// 	for(i = exts.begin(); i != exts.end(); i++)
+// 	{
+// 		TVPRegisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, (void*)spi);
+// 	}
+// }
+// //---------------------------------------------------------------------------
+// void TVPUnloadPictureSPI(HINSTANCE inst)
+// {
+// 	// unload specified Picture Susie plug-in from System.
+// 	tTVPSusiePicturePlugin** p = TVPSusiePluginList.Find(inst);
 
-	if(!p)
-		TVPThrowExceptionMessage(TVPNotLoadedPlugin);
+// 	if(!p)
+// 		TVPThrowExceptionMessage(TVPNotLoadedPlugin);
 
-	const std::vector<ttstr> & exts = (*p)->GetExtensions();
-	std::vector<ttstr>::const_iterator i;
-	for(i = exts.begin(); i != exts.end(); i++)
-	{
-		TVPUnregisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, (void*)*p);
-	}
+// 	const std::vector<ttstr> & exts = (*p)->GetExtensions();
+// 	std::vector<ttstr>::const_iterator i;
+// 	for(i = exts.begin(); i != exts.end(); i++)
+// 	{
+// 		TVPUnregisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, (void*)*p);
+// 	}
 
-	TVPSusiePluginList.Delete(inst);
+// 	TVPSusiePluginList.Delete(inst);
 
-	delete *p;
-}
-//---------------------------------------------------------------------------
+// 	delete *p;
+// }
+// //---------------------------------------------------------------------------
 

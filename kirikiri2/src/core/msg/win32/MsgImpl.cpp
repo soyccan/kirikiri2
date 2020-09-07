@@ -14,6 +14,8 @@
 #include "MsgImpl.h"
 #include "PluginImpl.h"
 
+#include <windows.h>
+
 //---------------------------------------------------------------------------
 // version retrieving
 //---------------------------------------------------------------------------
@@ -29,10 +31,10 @@ void TVPGetVersion(void)
 		TVPVersionRelease = 0;
 		TVPVersionBuild = 0;
 
-		TVPGetFileVersionOf(_argv[0], TVPVersionMajor, TVPVersionMinor,
+		char module_filename[100];
+		GetModuleFileNameA(NULL, module_filename, sizeof(module_filename));
+		TVPGetFileVersionOf(module_filename, TVPVersionMajor, TVPVersionMinor,
 			TVPVersionRelease, TVPVersionBuild);
 	}
 }
 //---------------------------------------------------------------------------
-
-

@@ -20,6 +20,7 @@
 
 #include <zlib/zlib.h>
 #include <algorithm>
+#include <stdio.h>
 
 bool TVPAllowExtractProtectedStorage = true;
 
@@ -203,8 +204,8 @@ static void TVPShutdownArchiveHandleCache()
 	delete [] TVPArchiveHandleCachePool;
 }
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPShutdownArchiveCacheAtExit
-	(TVP_ATEXIT_PRI_CLEANUP, TVPShutdownArchiveHandleCache);
+// static tTVPAtExit TVPShutdownArchiveCacheAtExit
+// 	(TVP_ATEXIT_PRI_CLEANUP, TVPShutdownArchiveHandleCache);
 //---------------------------------------------------------------------------
 
 
@@ -318,19 +319,19 @@ static bool TVPGetXP3ArchiveOffset(tTJSBinaryStream *st, const ttstr name,
 	return true;
 }
 //---------------------------------------------------------------------------
-bool TVPIsXP3Archive(const ttstr &name)
-{
-	tTVPStreamHolder holder(name);
-	try
-	{
-		tjs_uint64 offset;
-		return TVPGetXP3ArchiveOffset(holder.Get(), name, offset, false);
-	}
-	catch(...)
-	{
-		return false;
-	}
-}
+// bool TVPIsXP3Archive(const ttstr &name)
+// {
+// 	tTVPStreamHolder holder(name);
+// 	try
+// 	{
+// 		tjs_uint64 offset;
+// 		return TVPGetXP3ArchiveOffset(holder.Get(), name, offset, false);
+// 	}
+// 	catch(...)
+// 	{
+// 		return false;
+// 	}
+// }
 //---------------------------------------------------------------------------
 tTVPXP3Archive::tTVPXP3Archive(const ttstr & name) : tTVPArchive(name)
 {
@@ -743,20 +744,20 @@ void TVPClearXP3SegmentCache()
 	TVPSegmentCacheTotalBytes = 0;
 }
 //---------------------------------------------------------------------------
-struct tTVPClearSegmentCacheCallback : public tTVPCompactEventCallbackIntf
-{
-	virtual void TJS_INTF_METHOD OnCompact(tjs_int level)
-	{
-		if(level >= TVP_COMPACT_LEVEL_DEACTIVATE)
-		{
-			// clear the segment cache on application deactivate
-			TVPClearXP3SegmentCache();
-			// also free archive handle pool
-			TVPFreeArchiveHandlePool();
-		}
-	}
-} static TVPClearSegmentCacheCallback;
-static bool TVPClearSegmentCacheCallbackInit = false;
+// struct tTVPClearSegmentCacheCallback : public tTVPCompactEventCallbackIntf
+// {
+// 	virtual void TJS_INTF_METHOD OnCompact(tjs_int level)
+// 	{
+// 		if(level >= TVP_COMPACT_LEVEL_DEACTIVATE)
+// 		{
+// 			// clear the segment cache on application deactivate
+// 			TVPClearXP3SegmentCache();
+// 			// also free archive handle pool
+// 			TVPFreeArchiveHandlePool();
+// 		}
+// 	}
+// } static TVPClearSegmentCacheCallback;
+// static bool TVPClearSegmentCacheCallbackInit = false;
 //---------------------------------------------------------------------------
 static tTVPSegmentData * TVPSearchFromSegmentCache(
 	const tTVPSegmentCacheSearchData &sdata, tjs_uint32 hash)
@@ -777,11 +778,11 @@ static tTVPSegmentData * TVPSearchFromSegmentCache(
 static void TVPPushToSegmentCache(const tTVPSegmentCacheSearchData &sdata, tjs_uint32 hash,
 	tTVPSegmentData *data)
 {
-	if(!TVPClearSegmentCacheCallbackInit)
-	{
-		TVPAddCompactEventHook(&TVPClearSegmentCacheCallback);
-		TVPClearSegmentCacheCallbackInit = true;
-	}
+	// if(!TVPClearSegmentCacheCallbackInit)
+	// {
+	// 	TVPAddCompactEventHook(&TVPClearSegmentCacheCallback);
+	// 	TVPClearSegmentCacheCallbackInit = true;
+	// }
 
 	tTJSCriticalSectionHolder cs_holder(TVPSegmentCacheCS);
 
@@ -1040,11 +1041,12 @@ tjs_uint64 TJS_INTF_METHOD tTVPXP3ArchiveStream::GetSize()
 // Archive extraction utility
 //---------------------------------------------------------------------------
 #define TVP_LOCAL_TEMP_COPY_BLOCK_SIZE 65536*2
-#if 0
+#if 1
 // this routine is obsoleted because the Releaser includes over 256-characters
 // file name if the user specifies "protect over the archive" option.
 // Windows cannot handle such too long filename.
-void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, bool allowextractprotected)
+void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, 
+					   bool allowextractprotected, void* filter)
 {
 	// extract file to
 	bool TVPAllowExtractProtectedStorage_save =
@@ -1058,13 +1060,14 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, bool allowext
 		if(_destdir.GetLen() >= 1 && (last != TJS_W('/') && last != TJS_W('\\')))
 			destdir += TJS_W('/');
 
-		tTVPArchive *arc = TVPOpenArchive(name);
+		tTVPXP3Archive *arc = new tTVPXP3Archive(name);
 		try
 		{
 			tjs_int count = arc->GetCount();
 			for(tjs_int i = 0; i < count; i++)
 			{
-				ttstr name = arc->GetName(i);
+				// regarding path length limit in Win32
+				ttstr name = ttstr(arc->GetName(i), MAX_PATH - TJS_strlen(destdir.Independ()) - 5);
 
 				tTJSBinaryStream *src = arc->CreateStreamByIndex(i);
 				try
@@ -1078,6 +1081,12 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, bool allowext
 						{
 							read = src->Read(buffer, TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
 							if(read == 0) break;
+							// if (filter) {
+							// 	tTVPXP3ExtractionFilterInfo info(0, buffer, read, arc->GetFileHash(i));
+							// 	((int(*)(tTVPXP3ExtractionFilterInfo*))filter)(&info);
+							// 	__asm add esp, 4
+							// }
+							// __asm sub esp, 4
 							dest->WriteBuffer(buffer, read);
 						}
 					}
@@ -1086,6 +1095,7 @@ void TVPExtractArchive(const ttstr & name, const ttstr & _destdir, bool allowext
 						delete [] buffer;
 						throw;
 					}
+					printf("Done %ws\n", name.c_str());
 					delete [] buffer;
 				}
 				catch(...)
